@@ -19,6 +19,7 @@
     "@angular/router": "^21.2.0",
     "igniteui-angular": "^21.2.11",
     "igniteui-angular-charts": "^21.1.0",
+    "igniteui-grid-lite": "^0.7.1",
     "igniteui-theming": "^21.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"

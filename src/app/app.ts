@@ -1,8 +1,13 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnInit, inject } from '@angular/core';
 import { IgxAvatarModule } from 'igniteui-angular/avatar';
 import { IgxBadgeModule } from 'igniteui-angular/badge';
 import { IgxButtonModule } from 'igniteui-angular/directives';
-import { IgxGridModule } from 'igniteui-angular/grids/grid';
+import { IgxCardModule } from 'igniteui-angular/card';
+import {
+  IgxGridLiteCellTemplateDirective,
+  IgxGridLiteColumnComponent,
+  IgxGridLiteComponent
+} from 'igniteui-angular/grids/lite';
 import { IgxIconModule } from 'igniteui-angular/icon';
 import { IgxListModule } from 'igniteui-angular/list';
 import { IgxNavbarModule } from 'igniteui-angular/navbar';
@@ -50,6 +55,7 @@ interface WeeklyDealPoint {
   imports: [
     IgxNavbarModule,
     IgxButtonModule,
+    IgxCardModule,
     IgxIconModule,
     IgxBadgeModule,
     IgxCategoryChartModule,
@@ -57,28 +63,33 @@ interface WeeklyDealPoint {
     IgxRingSeriesModule,
     IgxListModule,
     IgxAvatarModule,
-    IgxGridModule
+    IgxGridLiteComponent,
+    IgxGridLiteColumnComponent,
+    IgxGridLiteCellTemplateDirective
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   protected readonly navLinks = ['Overview', 'Pipeline', 'Reports', 'Team'];
 
   protected readonly metrics: MetricCard[] = [
-    { label: 'Revenue MTD', value: '$842.3K', delta: '12.4% vs target', positive: true, icon: 'attach_money', iconClass: 'icon-revenue' },
-    { label: 'Quota Attainment', value: '94%', delta: '1.3 pts vs last month', positive: true, icon: 'percent', iconClass: 'icon-quota' },
-    { label: 'Deals Closed (Mtd)', value: '37', delta: '6 vs last month', positive: true, icon: 'tag', iconClass: 'icon-deals' },
+    { label: 'Revenue MTD', value: '$842.3K', delta: '12.4% vs target', positive: true, icon: 'attach_money', iconClass: 'rank-badge rank-1' },
+    { label: 'Quota Attainment', value: '94%', delta: '1.3 pts vs last month', positive: true, icon: 'percent', iconClass: 'rank-badge rank-2' },
+    { label: 'Deals Closed (Mtd)', value: '37', delta: '6 vs last month', positive: true, icon: 'tag', iconClass: 'rank-badge rank-3' },
     { label: 'Avg Deal Size', value: '$22.8K', delta: '1.9% vs last month', positive: false, icon: 'diamond', iconClass: 'icon-avg' }
   ];
 
   protected readonly revenueTrend = [
-    { month: 'Jan', revenue: 640, target: 650 },
-    { month: 'Feb', revenue: 655, target: 662 },
-    { month: 'Mar', revenue: 693, target: 685 },
-    { month: 'Apr', revenue: 705, target: 706 },
-    { month: 'May', revenue: 742, target: 726 },
-    { month: 'Jun', revenue: 783, target: 760 }
+    { month: 'Jan', revenue: 648, targetLine: 635 },
+    { month: 'Feb', revenue: 662, targetLine: 646 },
+    { month: 'Mar', revenue: 684, targetLine: 658 },
+    { month: 'Apr', revenue: 702, targetLine: 672 },
+    { month: 'May', revenue: 728, targetLine: 696 },
+    { month: 'Jun', revenue: 760, targetLine: 724 },
+    { month: 'Jul', revenue: 790, targetLine: 752 }
   ];
 
   protected readonly revenueByRegion = [
@@ -98,7 +109,9 @@ export class App {
     { day: 'Sun', deals: 25 }
   ];
 
-  protected readonly revenueRegionBrushes = ['#5f86ad', '#5a8b7d', '#c79b45', '#cc7c62'];
+  protected chartPalette = ['#7b62e8', '#2ab184', '#f0a12c', '#d84b98'];
+  protected trendBrushes = [this.chartPalette[0], this.chartPalette[3]];
+  protected dealsBrushes = [this.chartPalette[0]];
 
   protected readonly leaderboard: LeaderboardItem[] = [
     { rank: 1, name: 'Dana Voss', quota: '128% of quota', amount: '$312,400', delta: '18%', positive: true },
@@ -115,4 +128,46 @@ export class App {
     { company: 'Bright Path LLC', stage: 'Closed Won', value: '$15,300', rep: 'Tom Reyes', when: '1d ago', stageClass: 'stage-win' },
     { company: 'Ferro Industrial', stage: 'Qualified', value: '$91,000', rep: 'Elena Cruz', when: '2d ago', stageClass: 'stage-qualified' }
   ];
+
+  ngOnInit(): void {
+    const resolvedPalette = this.resolveChartPalette();
+    this.chartPalette = resolvedPalette;
+    this.trendBrushes = [resolvedPalette[0], resolvedPalette[3]];
+    this.dealsBrushes = [resolvedPalette[0]];
+  }
+
+  private resolveChartPalette(): string[] {
+    const styles = getComputedStyle(this.host.nativeElement);
+    return [
+      this.resolveCssColor(styles, '--chart-1', '#7b62e8'),
+      this.resolveCssColor(styles, '--chart-2', '#2ab184'),
+      this.resolveCssColor(styles, '--chart-3', '#f0a12c'),
+      this.resolveCssColor(styles, '--chart-4', '#d84b98')
+    ];
+  }
+
+  private resolveCssColor(styles: CSSStyleDeclaration, token: string, fallback: string): string {
+    const value = styles.getPropertyValue(token).trim();
+    return value || fallback;
+  }
+
+  protected stageClassFor(stage: string): string {
+    if (stage === 'Closed Won') {
+      return 'stage-win';
+    }
+
+    if (stage === 'Proposal Sent') {
+      return 'stage-proposal';
+    }
+
+    if (stage === 'Negotiation') {
+      return 'stage-negotiation';
+    }
+
+    if (stage === 'Qualified') {
+      return 'stage-qualified';
+    }
+
+    return '';
+  }
 }
