@@ -60,12 +60,8 @@
   --avatar-default-bg: #b7b7b7;
   --avatar-default-text: #2d3b4d;
 
-  --grid-background: #ffffff;
-  --grid-cell-bg: #ffffff;
-  --grid-cell-alt-bg: #ffffff;
-  --grid-hover-bg: #ededed;
-  --grid-border-dark: #b7c1cf;
-  --grid-border-light: #d9e1eb;
+  --grid-header-bg: #f8fafc;
+  --grid-hover-bg: #f7fafd;
   display: block;
   min-height: 100dvh;
   color: var(--text);
@@ -534,34 +530,19 @@ h1 {
   padding-right: 0.25rem;
 }
 
-.activity-panel .panel-body {
-  padding: 0;
-}
-
-.success-badge {
-  background: var(--chart-4);
-}
-
 .activity-grid {
   --ig-size: 1;
-
+  --ig-font-family: var(--font-family-base);
+  --ig-grid-border-color: transparent;
+  --ig-grid-header-text-color: var(--subtle-muted);
+  --ig-grid-header-background: var(--grid-header-bg);
+  --ig-grid-row-hover-background: var(--grid-hover-bg);
   font-family: var(--font-family-base);
   width: 100%;
   height: 100%;
   min-height: 250px;
   flex: 1 1 auto;
-
-  --igx-grid-background: var(--grid-background);
-  --igx-grid-header-background: var(--grid-background);
-  --igx-grid-header-text-color: var(--dark-text);
-  --igx-grid-row-odd-background: var(--grid-background);
-  --igx-grid-row-even-background: var(--grid-background);
-  --igx-grid-row-odd-text-color: var(--dark-text);
-  --igx-grid-row-even-text-color: var(--dark-text);
-  --igx-grid-row-hover-background: var(--grid-hover-bg);
 }
-
-
 
 .stage-pill {
   border-radius: 999px;

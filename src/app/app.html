@@ -17,7 +17,7 @@
     <header class="title-row">
       <div class="title-copy">
         <div class="status-row">
-          <igx-badge type="success" shape="square" [dot]="true" aria-label="Live status" class="success-badge"></igx-badge>
+          <igx-badge type="success" shape="square" [dot]="true" aria-label="Live status"></igx-badge>
           <span>LIVE · UPDATED JUST NOW</span>
         </div>
         <h1>Sales Overview</h1>
@@ -162,17 +162,17 @@
         </header>
 
         <div class="panel-body">
-          <igx-grid class="activity-grid" [data]="activityRows" [autoGenerate]="false">
-            <igx-column field="company" header="COMPANY" [sortable]="false" [filterable]="false"></igx-column>
-            <igx-column field="stage" header="STAGE" [sortable]="false" [filterable]="false">
-              <ng-template igxCell let-cell="cell">
-                <span class="stage-pill" [class]="stageClassFor(cell.value)">{{ cell.value }}</span>
+          <igx-grid-lite class="activity-grid" [data]="activityRows" [autoGenerate]="false">
+            <igx-grid-lite-column field="company" header="COMPANY" [sortable]="false" [filterable]="false"></igx-grid-lite-column>
+            <igx-grid-lite-column field="stage" header="STAGE" [sortable]="false" [filterable]="false">
+              <ng-template igxGridLiteCell let-value>
+                <span class="stage-pill" [class]="stageClassFor(value)">{{ value }}</span>
               </ng-template>
-            </igx-column>
-            <igx-column field="value" header="VALUE" [sortable]="false" [filterable]="false"></igx-column>
-            <igx-column field="rep" header="REP" [sortable]="false" [filterable]="false"></igx-column>
-            <igx-column field="when" header="WHEN" [sortable]="false" [filterable]="false"></igx-column>
-          </igx-grid>
+            </igx-grid-lite-column>
+            <igx-grid-lite-column field="value" header="VALUE" [sortable]="false" [filterable]="false"></igx-grid-lite-column>
+            <igx-grid-lite-column field="rep" header="REP" [sortable]="false" [filterable]="false"></igx-grid-lite-column>
+            <igx-grid-lite-column field="when" header="WHEN" [sortable]="false" [filterable]="false"></igx-grid-lite-column>
+          </igx-grid-lite>
         </div>
       </section>
 
