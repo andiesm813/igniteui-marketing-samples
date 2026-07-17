@@ -3,11 +3,7 @@ import { IgxAvatarModule } from 'igniteui-angular/avatar';
 import { IgxBadgeModule } from 'igniteui-angular/badge';
 import { IgxButtonModule } from 'igniteui-angular/directives';
 import { IgxCardModule } from 'igniteui-angular/card';
-import {
-  IgxGridLiteCellTemplateDirective,
-  IgxGridLiteColumnComponent,
-  IgxGridLiteComponent
-} from 'igniteui-angular/grids/lite';
+import { IgxGridModule } from 'igniteui-angular/grids/grid';
 import { IgxIconModule } from 'igniteui-angular/icon';
 import { IgxListModule } from 'igniteui-angular/list';
 import { IgxNavbarModule } from 'igniteui-angular/navbar';
@@ -63,9 +59,7 @@ interface WeeklyDealPoint {
     IgxRingSeriesModule,
     IgxListModule,
     IgxAvatarModule,
-    IgxGridLiteComponent,
-    IgxGridLiteColumnComponent,
-    IgxGridLiteCellTemplateDirective
+    IgxGridModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
