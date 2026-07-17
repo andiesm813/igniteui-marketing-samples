@@ -303,8 +303,15 @@ h1 {
   gap: 0.75rem;
 }
 
+.upper-panels {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
 .lower-panels {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.35fr 1fr;
 }
 
 .panel {
@@ -317,21 +324,31 @@ h1 {
 }
 
 .trend-panel,
-.deals-panel {
+.region-panel,
+.deals-panel,
+.activity-panel {
   display: flex;
   flex-direction: column;
 }
 
-.deals-panel .panel-body {
+.trend-panel .panel-body,
+.deals-panel .panel-body,
+.activity-panel .panel-body {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
+  align-items: stretch;
+}
+
+.deals-panel .panel-body {
+  align-items: stretch;
 }
 
 .panel-body-chart {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
+  align-items: stretch;
 }
 
 .panel-title {
@@ -357,7 +374,9 @@ h1 {
 .chart-box {
   display: block;
   width: 100%;
-  height: 248px;
+  height: 100%;
+  min-height: 248px;
+  flex: 1 1 auto;
   font-family: var(--font-family-base);
 }
 
@@ -513,11 +532,16 @@ h1 {
 
 .activity-grid {
   --ig-size: 1;
+  --ig-font-family: var(--font-family-base);
   --ig-grid-border-color: transparent;
   --ig-grid-header-text-color: var(--subtle-muted);
   --ig-grid-header-background: var(--grid-header-bg);
   --ig-grid-row-hover-background: var(--grid-hover-bg);
-  height: 250px;
+  font-family: var(--font-family-base);
+  width: 100%;
+  height: 100%;
+  min-height: 250px;
+  flex: 1 1 auto;
 }
 
 .stage-pill {
@@ -560,6 +584,7 @@ h1 {
     border-bottom: 1px solid var(--line);
   }
 
+  .upper-panels,
   .two-col,
   .lower-panels {
     grid-template-columns: 1fr;

@@ -118,7 +118,12 @@ export class App implements OnInit {
     { rank: 2, name: 'Marcus Ibe', quota: '116% of quota', amount: '$284,900', delta: '8%', positive: true },
     { rank: 3, name: 'Priya Shah', quota: '104% of quota', amount: '$256,100', delta: '14%', positive: true },
     { rank: 4, name: 'Tom Reyes', quota: '98% of quota', amount: '$231,700', delta: '-2%', positive: false },
-    { rank: 5, name: 'Elena Cruz', quota: '91% of quota', amount: '$198,300', delta: '-5%', positive: false }
+    { rank: 5, name: 'Elena Cruz', quota: '91% of quota', amount: '$198,300', delta: '-5%', positive: false },
+    { rank: 6, name: 'Leo Martin', quota: '89% of quota', amount: '$186,900', delta: '4%', positive: true },
+    { rank: 7, name: 'Sofia Kim', quota: '86% of quota', amount: '$174,200', delta: '3%', positive: true },
+    { rank: 8, name: 'Noah Bennett', quota: '82% of quota', amount: '$162,800', delta: '-1%', positive: false },
+    { rank: 9, name: 'Maya Patel', quota: '79% of quota', amount: '$154,600', delta: '2%', positive: true },
+    { rank: 10, name: 'Chris Nolan', quota: '75% of quota', amount: '$148,100', delta: '-3%', positive: false }
   ];
 
   protected readonly activityRows: ActivityRow[] = [
@@ -126,7 +131,19 @@ export class App implements OnInit {
     { company: 'Northfield Retail', stage: 'Proposal Sent', value: '$22,000', rep: 'Priya Shah', when: '5h ago', stageClass: 'stage-proposal' },
     { company: 'Callisto Systems', stage: 'Negotiation', value: '$67,500', rep: 'Marcus Ibe', when: '1d ago', stageClass: 'stage-negotiation' },
     { company: 'Bright Path LLC', stage: 'Closed Won', value: '$15,300', rep: 'Tom Reyes', when: '1d ago', stageClass: 'stage-win' },
-    { company: 'Ferro Industrial', stage: 'Qualified', value: '$91,000', rep: 'Elena Cruz', when: '2d ago', stageClass: 'stage-qualified' }
+    { company: 'Ferro Industrial', stage: 'Qualified', value: '$91,000', rep: 'Elena Cruz', when: '2d ago', stageClass: 'stage-qualified' },
+    { company: 'Atlas Foods', stage: 'Proposal Sent', value: '$38,400', rep: 'Leo Martin', when: '2d ago', stageClass: 'stage-proposal' },
+    { company: 'Nimbus Health', stage: 'Negotiation', value: '$57,800', rep: 'Sofia Kim', when: '3d ago', stageClass: 'stage-negotiation' },
+    { company: 'Summit Works', stage: 'Qualified', value: '$26,900', rep: 'Noah Bennett', when: '3d ago', stageClass: 'stage-qualified' },
+    { company: 'Blue Harbor', stage: 'Closed Won', value: '$44,700', rep: 'Maya Patel', when: '4d ago', stageClass: 'stage-win' },
+    { company: 'Orion Energy', stage: 'Proposal Sent', value: '$72,500', rep: 'Chris Nolan', when: '4d ago', stageClass: 'stage-proposal' },
+    { company: 'Red Cedar Co', stage: 'Negotiation', value: '$33,600', rep: 'Dana Voss', when: '5d ago', stageClass: 'stage-negotiation' },
+    { company: 'Apex Logistics', stage: 'Closed Won', value: '$58,100', rep: 'Marcus Ibe', when: '5d ago', stageClass: 'stage-win' },
+    { company: 'North Ridge', stage: 'Qualified', value: '$19,400', rep: 'Priya Shah', when: '6d ago', stageClass: 'stage-qualified' },
+    { company: 'Everfield Labs', stage: 'Proposal Sent', value: '$41,250', rep: 'Tom Reyes', when: '6d ago', stageClass: 'stage-proposal' },
+    { company: 'Clearwater Tech', stage: 'Closed Won', value: '$63,900', rep: 'Elena Cruz', when: '1w ago', stageClass: 'stage-win' },
+    { company: 'Harborline Media', stage: 'Negotiation', value: '$28,700', rep: 'Leo Martin', when: '1w ago', stageClass: 'stage-negotiation' },
+    { company: 'Pioneer Metals', stage: 'Qualified', value: '$76,300', rep: 'Sofia Kim', when: '1w ago', stageClass: 'stage-qualified' }
   ];
 
   ngOnInit(): void {
