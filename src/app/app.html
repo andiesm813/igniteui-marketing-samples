@@ -2,17 +2,25 @@
   <igx-navbar class="topbar">
     <div igxNavbarTitle class="topbar-left">
       <div class="brand-wrap">
-        <div class="brand">MERIDIAN</div>
+        <div class="brand">IGNITE UI SAMPLES</div>
       </div>
 
       <div class="nav-actions">
-        @for (link of navLinks; track link) {
-          <button igxButton="flat" class="top-link">{{ link }}</button>
+        @for (link of navLinks; track link.label) {
+          <button
+            igxButton="flat"
+            class="top-link"
+            [class.active]="isActivePage(link.page)"
+            (click)="openPage(link.page)"
+          >
+            {{ link.label }}
+          </button>
         }
       </div>
     </div>
   </igx-navbar>
 
+  @if (currentPage === 'dashboard') {
   <section class="shell">
     <header class="title-row">
       <div class="title-copy">
@@ -164,6 +172,7 @@
         <div class="panel-body">
           <igx-grid class="activity-grid" [data]="activityRows" [autoGenerate]="false">
             <igx-column field="company" header="COMPANY" [sortable]="false" [filterable]="false"></igx-column>
+            <igx-column field="region" header="REGION" [sortable]="false" [filterable]="false"></igx-column>
             <igx-column field="stage" header="STAGE" [sortable]="false" [filterable]="false">
               <ng-template igxCell let-cell="cell">
                 <span class="stage-pill" [class]="stageClassFor(cell.value)">{{ cell.value }}</span>
@@ -171,6 +180,7 @@
             </igx-column>
             <igx-column field="value" header="VALUE" [sortable]="false" [filterable]="false"></igx-column>
             <igx-column field="rep" header="REP" [sortable]="false" [filterable]="false"></igx-column>
+            <igx-column field="source" header="SOURCE" [sortable]="false" [filterable]="false"></igx-column>
             <igx-column field="when" header="WHEN" [sortable]="false" [filterable]="false"></igx-column>
           </igx-grid>
         </div>
@@ -210,4 +220,189 @@
       </article>
     </section>
   </section>
+  } @else {
+  <section class="finance-shell" aria-label="Finance grid page">
+    <header class="finance-header">
+      <div>
+        <h1>{{ financePageTitle() }}</h1>
+        <p class="subtle">
+          {{ currentPage === 'financeSample' ? 'A grid showcasing Ignite UI Grid.' : 'A financial sample of the AG Grid component.' }}
+        </p>
+      </div>
+    </header>
+
+    @if (currentPage === 'financeSample') {
+    <igx-grid
+      class="finance-grid"
+      [data]="igFinancialSampleRows"
+      [autoGenerate]="false"
+      [showGroupArea]="true"
+      [rowSelection]="'none'"
+    >
+      <igx-column field="ticker" header="Asset" [sortable]="true" [filterable]="false" [width]="'280px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="ticker-cell">
+            <igx-avatar
+              class="ticker-logo"
+              [size]="'small'"
+              [shape]="'circle'"
+              [src]="tickerLogo(cell.row.data)"
+              [initials]="cell.row.data.ticker.slice(0, 2)"
+            ></igx-avatar>
+            <div class="ticker-meta">
+              <span class="ticker-symbol">{{ cell.row.data.ticker }}</span>
+              <span class="ticker-name">{{ cell.row.data.company }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </igx-column>
+
+
+      <igx-column field="priceTrend" header="Price Trend" [sortable]="false" [filterable]="false" [width]="'120px'">
+        <ng-template igxCell let-cell="cell">
+          <igx-sparkline
+            class="price-trend-spark"
+            width="100%"
+            height="20px"
+            [dataSource]="cell.value"
+            valueMemberPath="value"
+            displayType="line"
+            [lineThickness]="1.8"
+            [brush]="sparklineBrush(cell.row.data.changePct)"
+            [negativeBrush]="sparklineNegativeBrush(cell.row.data.changePct)"
+          >
+          ></igx-sparkline>
+        </ng-template>
+      </igx-column>    
+
+      <igx-column field="lastPrice" header="Last Price" [sortable]="true" [filterable]="false" [width]="'150px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+  
+      <igx-column field="changePct" header="Change %" [sortable]="true" [filterable]="false" [width]="'140px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="delta-cell">
+            <span class="delta-value" [class]="deltaClass(cell.value)">{{ formatPercent(cell.value) }}</span>
+          </div>
+        </ng-template>
+      </igx-column>      
+
+      <igx-column field="marketValue" header="Market Value" [sortable]="true" [filterable]="false" [width]="'170px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="netProfit" header="NET Profit" [sortable]="true" [filterable]="false" [width]="'170px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="delta-cell">
+            <span class="delta-value" [class]="deltaClass(cell.value)">{{ signedCurrency(cell.value) }}</span>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="netProfitPct" header="NET Profit %" [sortable]="true" [filterable]="false" [width]="'160px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="delta-cell">
+            <span class="delta-value" [class]="deltaClass(cell.value)">{{ formatPercent(cell.value) }}</span>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="allocationPct" header="Allocation" [sortable]="true" [filterable]="false" [width]="'170px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="allocation-cell">
+            <span class="allocation-value">{{ formatPercent(cell.value) }}</span>
+            <span class="allocation-track">
+              <span class="allocation-fill" [style.width]="allocationWidth(cell.value)"></span>
+            </span>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="averageCost" header="Average Cost" [sortable]="true" [filterable]="false" [width]="'150px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="position" header="Position" [sortable]="true" [filterable]="false" [width]="'110px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="numeric-cell">{{ formatQuantity(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="holdingPeriodDays" header="Holding Period" [sortable]="true" [filterable]="false" [width]="'140px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="text-cell">{{ formatHoldingPeriod(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+    </igx-grid>
+    } @else {
+    <igx-grid
+      class="finance-grid"
+      [data]="activeFinanceHoldings()"
+      [autoGenerate]="false"
+      [showGroupArea]="true"
+      [rowSelection]="'none'"
+    >
+      <igx-column field="ticker" header="Ticker" [sortable]="true" [filterable]="false" [width]="'260px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="ticker-cell">
+            <igx-avatar
+              class="ticker-logo"
+              [size]="'small'"
+              [shape]="'circle'"
+              [src]="tickerLogo(cell.row.data)"
+              [initials]="cell.row.data.ticker.slice(0, 2)"
+            ></igx-avatar>
+            <div class="ticker-meta">
+              <span class="ticker-symbol">{{ cell.row.data.ticker }}</span>
+              <span class="ticker-name">{{ cell.row.data.company }}</span>
+            </div>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="timeline" header="Timeline" [sortable]="false" [filterable]="false" [width]="'360px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="timeline-cell" aria-label="timeline sparkline">
+            @for (bar of cell.value; track $index) {
+              <span class="timeline-bar" [style.height.%]="bar"></span>
+            }
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="instrument" header="Instrument" [sortable]="true" [filterable]="true" [width]="'140px'"></igx-column>
+
+      <igx-column field="pnl" header="P&L" [sortable]="true" [filterable]="false" [width]="'180px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="delta-cell">
+            <span>{{ formatNumber(cell.row.data.score) }}</span>
+            <span class="delta-value" [class]="deltaClass(cell.value)">{{ signedCurrency(cell.value) }}</span>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="totalChange" header="Total Value" [sortable]="true" [filterable]="false" [width]="'220px'">
+        <ng-template igxCell let-cell="cell">
+          <div class="delta-cell">
+            <span class="delta-value" [class]="deltaClass(cell.value)">{{ signedCurrency(cell.value) }}</span>
+            <span>{{ formatCurrency(cell.row.data.marketValue) }}</span>
+          </div>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="quantity" header="Quantity" [sortable]="true" [filterable]="false" [width]="'110px'">
+        <ng-template igxCell let-cell="cell">
+          <span class="numeric-cell">{{ formatQuantity(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+    </igx-grid>
+    }
+  </section>
+  }
 </main>

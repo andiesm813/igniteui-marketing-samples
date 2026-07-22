@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "sales-dashboard-igniteui": {
+    "ignite-ui-samples": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -58,10 +58,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "sales-dashboard-igniteui:build:production"
+              "buildTarget": "ignite-ui-samples:build:production"
             },
             "development": {
-              "buildTarget": "sales-dashboard-igniteui:build:development"
+              "buildTarget": "ignite-ui-samples:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 html,
@@ -7,4 +7,200 @@ body {
 	padding: 0;
 	min-height: 100%;
 	background: #f3f5f7;
+}
+
+.finance-grid {
+	--ig-size: 3;
+	--igx-grid-background: var(--grid-background);
+	--igx-grid-header-background: var(--grid-background);
+	--igx-grid-header-border-color: var(--grid-border-light);
+	--igx-grid-row-odd-background: var(--grid-background);
+	--igx-grid-row-even-background: var(--grid-background);
+	--igx-grid-row-hover-background: var(--grid-hover-bg);
+	--igx-grid-row-border-color: var(--grid-border-light);
+	width: 100%;
+	min-height: 68dvh;
+	overflow: hidden;
+	border: 1px solid var(--grid-border-light);
+	font-family: 'DM Sans', sans-serif;
+}
+
+.finance-grid .igx-grid__th,
+.finance-grid .igx-grid__td,
+.finance-grid .igx-grid__td-inner,
+.finance-grid .igx-grid__drop-area,
+.finance-grid .numeric-cell, .finance-grid .text-cell,
+.finance-grid .allocation-value {
+	font-size: var(--font-size-sm) !important;
+}
+
+.finance-grid .numeric-cell,
+.finance-grid .allocation-value,
+.finance-grid .delta-value,
+.finance-grid .price-change-cell {
+	font-variant-numeric: tabular-nums;
+}
+
+.ticker-cell {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.ticker-logo {
+	--finance-avatar-size: 32px;
+	flex: 0 0 auto;
+	inline-size: var(--finance-avatar-size);
+	block-size: var(--finance-avatar-size);
+	min-inline-size: var(--finance-avatar-size);
+	min-block-size: var(--finance-avatar-size);
+	border: 1px solid var(--grid-border-light);
+}
+
+.ticker-meta {
+	display: grid;
+	gap: 0;
+	line-height: 1.2;
+}
+
+.ticker-symbol {
+	color: var(--text-dark);
+	font-weight: 600;
+}
+
+.ticker-name {
+	color: var(--subtle-muted);
+	font-size: 0.75rem;
+}
+
+.timeline-cell {
+	height: 2.1rem;
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: 0.45rem;
+	align-items: end;
+	gap: 0.12rem;
+}
+
+.timeline-bar {
+	display: inline-block;
+	min-height: 0.15rem;
+	border-radius: 0.08rem;
+	background: var(--top-link-active);
+}
+
+.delta-cell,
+.allocation-cell {
+	display: flex;
+	align-items: center;
+}
+
+.delta-cell {
+	justify-content: flex-end;
+	gap: 0.35rem;
+	font-size: 0.875rem;
+	width: fit-content;
+	margin-inline-start: auto;
+}
+
+.allocation-cell {
+	gap: 0.5rem;
+}
+
+.delta-value::before {
+	content: '';
+}
+
+.delta-value.positive {
+	color: var(--pill-positive-text);
+	background: var(--pill-positive-bg);
+}
+
+.delta-value.positive::before {
+	content: '↑ ';
+}
+
+.delta-value.negative {
+	color: var(--pill-negative-text);
+	background: var(--pill-negative-bg);
+}
+
+.delta-value.negative::before {
+	content: '↓ ';
+}
+
+.delta-value.neutral {
+	color: var(--avatar-default-text);
+	background: var(--pill-positive-bg);
+}
+
+.allocation-track {
+	width: 78px;
+	height: 10px;
+	border-radius: 8px;
+	background: var(--grid-border-light);
+	display: inline-block;
+	overflow: hidden;
+}
+
+.allocation-fill {
+	display: block;
+	height: 100%;
+	min-width: 2px;
+	border-radius: 8px;
+	background: var(--top-link-active);
+}
+
+.delta-value {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.2rem;
+	width: fit-content;
+	padding: 0.24rem 0.62rem;
+	border-radius: 999px;
+	font: 600 0.75rem 'DM Sans', sans-serif;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+}
+
+.allocation-value {
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+}
+
+.numeric-cell {
+	display: block;
+	width: 100%;
+	font-size: 0.875rem;
+	font-variant-numeric: tabular-nums;
+	text-align: right;
+}
+
+.delta-cell {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	justify-content: flex-end;
+	gap: 0.35rem;
+	font-size: 0.875rem;
+	width: fit-content;
+	margin-inline-start: auto;
+}
+
+.price-change-cell {
+	justify-content: flex-end;
+}
+
+.price-change-cell .numeric-cell {
+	display: inline-block;
+	width: auto;
+	text-align: right;
+	white-space: nowrap;
+}
+
+.price-trend-spark {
+	display: block;
+	width: 100%;
+	height: 20px;
+	padding-inline: 2px;
 }
