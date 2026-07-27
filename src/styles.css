@@ -11,15 +11,16 @@ body {
 
 .finance-grid {
 	--ig-size: 3;
-	--igx-grid-background: var(--grid-background);
-	--igx-grid-header-background: var(--grid-background);
-	--igx-grid-header-border-color: var(--grid-border-light);
-	--igx-grid-row-odd-background: var(--grid-background);
-	--igx-grid-row-even-background: var(--grid-background);
-	--igx-grid-row-hover-background: var(--grid-hover-bg);
-	--igx-grid-row-border-color: var(--grid-border-light);
+	--background: var(--grid-background);
+	--header-background: var(--grid-background);
+	--header-border-color: var(--grid-border-light);
+	--row-odd-background: var(--grid-background);
+	--row-even-background: var(--grid-background);
+	--row-hover-background: var(--grid-hover-bg);
+	--row-border-color: var(--grid-border-light);
 	width: 100%;
-	min-height: 68dvh;
+	height: 100%;
+	min-height: 0;
 	overflow: hidden;
 	border: 1px solid var(--grid-border-light);
 	font-family: 'DM Sans', sans-serif;
@@ -55,6 +56,15 @@ body {
 	min-inline-size: var(--finance-avatar-size);
 	min-block-size: var(--finance-avatar-size);
 	border: 1px solid var(--grid-border-light);
+}
+
+.finance-grid igx-avatar.ticker-logo.igx-avatar--initials,
+.finance-grid .ticker-logo.igx-avatar--initials {
+	font-family: 'Barlow Condensed', 'Barlow', 'Segoe UI', sans-serif;
+	font-size: 0.875rem !important;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	line-height: 1 !important;
 }
 
 .ticker-meta {
@@ -203,4 +213,16 @@ body {
 	width: 100%;
 	height: 20px;
 	padding-inline: 2px;
+}
+
+.employee-directory-avatar::part(base) {
+	border: 1px solid var(--grid-border-light);
+}
+
+.employee-directory-avatar::part(initials) {
+	font-family: 'Barlow Condensed', 'Barlow', 'Segoe UI', sans-serif;
+	font-size: 0.8rem;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+	line-height: 0.8rem;
 }

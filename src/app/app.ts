@@ -1,18 +1,23 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnInit, inject } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
 import { IgxAvatarModule } from 'igniteui-angular/avatar';
 import { IgxBadgeModule } from 'igniteui-angular/badge';
 import { IgxButtonModule } from 'igniteui-angular/directives';
 import { IgxCardModule } from 'igniteui-angular/card';
+import { IgxChipsModule } from 'igniteui-angular/chips';
 import { IgxGridModule } from 'igniteui-angular/grids/grid';
 import { IgxIconModule } from 'igniteui-angular/icon';
+import { IgxInputGroupModule } from 'igniteui-angular/input-group';
 import { IgxListModule } from 'igniteui-angular/list';
 import { IgxNavbarModule } from 'igniteui-angular/navbar';
+import { IgxTabsModule } from 'igniteui-angular/tabs';
 import {
   IgxCategoryChartModule,
   IgxDoughnutChartModule,
   IgxRingSeriesModule,
   IgxSparklineModule
 } from 'igniteui-angular-charts';
+import type { IgcCellContext } from 'igniteui-grid-lite';
+import { html, type TemplateResult } from 'lit';
 
 interface MetricCard {
   label: string;
@@ -43,6 +48,98 @@ interface ActivityRow {
   stageClass: string;
 }
 
+interface FleetMetric {
+  label: string;
+  value: number;
+}
+
+type FleetStatus = 'Active' | 'Available' | 'In Maintenance';
+
+type FleetStatusFilter = 'all' | FleetStatus;
+
+interface FleetVehicleSpecs {
+  engine: string;
+  generation: string;
+  year: number;
+  fuelType: string;
+  power: string;
+  mileage: string;
+  doorsSeats: string;
+  cubature: string;
+  color: string;
+  transmission: string;
+  msrp: string;
+  tollPassId: string;
+}
+
+interface FleetVehicle {
+  id: string;
+  licensePlate: string;
+  make: string;
+  model: string;
+  type: string;
+  vin: string;
+  status: FleetStatus;
+  locationCity: string;
+  locationGps: string;
+  specs: FleetVehicleSpecs;
+}
+
+interface FleetTripRow {
+  date: string;
+  from: string;
+  to: string;
+  startMeter: string;
+  endMeter: string;
+  distance: string;
+  duration: string;
+  driver: string;
+}
+
+interface FleetMaintenanceRow {
+  date: string;
+  service: string;
+  odometer: string;
+  cost: string;
+  status: 'Completed' | 'Scheduled';
+}
+
+interface FleetCostItem {
+  label: string;
+  value: number;
+  tone: 'fuel' | 'maintenance' | 'insurance' | 'tolls';
+}
+
+interface FleetCostDistributionPoint {
+  label: string;
+  displayLabel: string;
+  percentage: string;
+  value: number;
+  tone: FleetCostItem['tone'];
+}
+
+interface FleetMonthlySpendPoint {
+  month: string;
+  spend: number;
+}
+
+interface FleetUtilizationComparisonPoint {
+  month: string;
+  utilization2024: number;
+  utilization2025: number;
+}
+
+interface EmployeeRecord {
+  avatarUrl: string;
+  firstName: string;
+  lastName: string;
+  satisfactionRating: number;
+  employmentType: 'Full-Time' | 'Part-Time' | 'Contract';
+  emailAddress: string;
+  department: 'Finance' | 'Engineering' | 'Marketing' | 'Sales';
+  registeredOn: string;
+}
+
 interface WeeklyDealPoint {
   day: string;
   deals: number;
@@ -62,11 +159,6 @@ interface FinanceHolding {
 }
 
 type FinanceTone = 'blue' | 'orange' | 'green' | 'slate' | 'gold' | 'red';
-
-interface FinanceAvatarSource {
-  ticker: string;
-  tone: FinanceTone;
-}
 
 interface PriceTrendPoint {
   value: number;
@@ -112,7 +204,7 @@ interface LegacyIgFinanceMappedRow {
   tone: FinanceTone;
 }
 
-type AppPage = 'dashboard' | 'financeAg' | 'financeSample';
+type AppPage = 'dashboard' | 'financeAg' | 'financeSample' | 'fleetManagement' | 'employeeDirectory';
 
 interface AppNavLink {
   label: string;
@@ -134,14 +226,31 @@ interface AppNavLink {
     IgxSparklineModule,
     IgxListModule,
     IgxAvatarModule,
-    IgxGridModule
+    IgxGridModule,
+    IgxInputGroupModule,
+    IgxChipsModule,
+    IgxTabsModule
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit {
   private readonly host = inject(ElementRef<HTMLElement>);
-  private readonly tickerLogoCache = new Map<string, string>();
+  private readonly fleetVehiclePhotoCatalog: readonly string[] = [
+    'https://images.pexels.com/photos/261985/pexels-photo-261985.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/34712982/pexels-photo-34712982.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/32923911/pexels-photo-32923911.png?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/24906491/pexels-photo-24906491.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/25637367/pexels-photo-25637367.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/627719/pexels-photo-627719.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/27497572/pexels-photo-27497572.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/27497571/pexels-photo-27497571.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/3002139/pexels-photo-3002139.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/12920557/pexels-photo-12920557.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/27229490/pexels-photo-27229490.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.pexels.com/photos/17534546/pexels-photo-17534546.jpeg?auto=compress&cs=tinysrgb&w=1200'
+  ];
   private readonly currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -164,7 +273,9 @@ export class App implements OnInit {
   protected readonly navLinks: AppNavLink[] = [
     { label: 'Sales Dashboard', page: 'dashboard' },
     { label: 'Financial AG Grid', page: 'financeAg' },
-    { label: 'IG Financial Sample', page: 'financeSample' }
+    { label: 'IG Financial Sample', page: 'financeSample' },
+    { label: 'Fleet Management', page: 'fleetManagement' },
+    { label: 'Employee Directory', page: 'employeeDirectory' }
   ];
 
   protected currentPage: AppPage = 'dashboard';
@@ -455,7 +566,26 @@ export class App implements OnInit {
     { ticker: 'PFE', company: 'Pfizer Inc.', lastPrice: 39.81, changePct: 0, marketValue: 3.98, netProfit: -0.15, netProfitPct: -3.63, allocationPct: 0.01, averageCost: 41.32, position: 0.1, holdingPeriodDays: 180, tone: 'blue' },
     { ticker: 'XOM', company: 'Exxon Mobil Corp.', lastPrice: 114.38, changePct: 1.75, marketValue: 388.89, netProfit: -100.06, netProfitPct: -20.46, allocationPct: 1.18, averageCost: 143.81, position: 3.4, holdingPeriodDays: 400, tone: 'red' },
     { ticker: 'CVX', company: 'Chevron Corp.', lastPrice: 179.62, changePct: -0.56, marketValue: 71.85, netProfit: 11.12, netProfitPct: 18.31, allocationPct: 0.15, averageCost: 151.82, position: 0.4, holdingPeriodDays: 320, tone: 'blue' },
-    { ticker: 'MCD', company: 'McDonalds Corporation', lastPrice: 281.27, changePct: 0.61, marketValue: 87.19, netProfit: 74.62, netProfitPct: 132.06, allocationPct: 0.17, averageCost: 121.21, position: 0.31, holdingPeriodDays: 610, tone: 'gold' }
+    { ticker: 'MCD', company: 'McDonalds Corporation', lastPrice: 281.27, changePct: 0.61, marketValue: 87.19, netProfit: 74.62, netProfitPct: 132.06, allocationPct: 0.17, averageCost: 121.21, position: 0.31, holdingPeriodDays: 610, tone: 'gold' },
+    { ticker: 'INTC', company: 'Intel Corp.', lastPrice: 23.65, changePct: 0, marketValue: 6.39, netProfit: -16.56, netProfitPct: -72.18, allocationPct: 0.01, averageCost: 85, position: 0.27, holdingPeriodDays: 342, tone: 'green' },
+    { ticker: 'NFLX', company: 'Netflix Inc.', lastPrice: 877.34, changePct: 0, marketValue: 105.28, netProfit: 99.88, netProfitPct: 1849.64, allocationPct: 0.19, averageCost: 45, position: 0.12, holdingPeriodDays: 289, tone: 'blue' },
+    { ticker: 'ADBE', company: 'Adobe Inc.', lastPrice: 513.68, changePct: 0, marketValue: 174.65, netProfit: 148.13, netProfitPct: 558.56, allocationPct: 0.32, averageCost: 78, position: 0.34, holdingPeriodDays: 412, tone: 'gold' },
+    { ticker: 'CRM', company: 'Salesforce Inc.', lastPrice: 341.45, changePct: 0, marketValue: 307.31, netProfit: 256.9, netProfitPct: 509.73, allocationPct: 0.56, averageCost: 56, position: 0.9, holdingPeriodDays: 198, tone: 'gold' },
+    { ticker: 'BA', company: 'Boeing Co', lastPrice: 152.4, changePct: 0, marketValue: 71.63, netProfit: 28.39, netProfitPct: 65.65, allocationPct: 0.13, averageCost: 92, position: 0.47, holdingPeriodDays: 276, tone: 'red' },
+    { ticker: 'IBM', company: 'IBM Corp.', lastPrice: 222.97, changePct: 0, marketValue: 66.89, netProfit: 53.39, netProfitPct: 395.49, allocationPct: 0.12, averageCost: 45, position: 0.3, holdingPeriodDays: 365, tone: 'blue' },
+    { ticker: 'MDLZ', company: 'Mondelez International Inc', lastPrice: 64.4, changePct: 0, marketValue: 61.18, netProfit: -47.5, netProfitPct: -43.71, allocationPct: 0.11, averageCost: 114.4, position: 0.95, holdingPeriodDays: 2, tone: 'red' },
+    { ticker: 'MS', company: 'Morgan Stanley', lastPrice: 131.2, changePct: 0, marketValue: 87.9, netProfit: -33.5, netProfitPct: -27.59, allocationPct: 0.16, averageCost: 181.2, position: 0.67, holdingPeriodDays: 13, tone: 'gold' },
+    { ticker: 'SPOT', company: 'Spotify Technology SA', lastPrice: 475.87, changePct: 0, marketValue: 166.55, netProfit: -17.5, netProfitPct: -9.51, allocationPct: 0.3, averageCost: 525.87, position: 0.35, holdingPeriodDays: 41, tone: 'green' },
+    { ticker: 'MMM', company: '3M Co.', lastPrice: 130.32, changePct: 0, marketValue: 195.48, netProfit: -30, netProfitPct: -13.3, allocationPct: 0.36, averageCost: 150.32, position: 1.5, holdingPeriodDays: 123, tone: 'slate' },
+    { ticker: 'CSCO', company: 'Cisco Systems Inc.', lastPrice: 58.74, changePct: 0, marketValue: 28.2, netProfit: -19.2, netProfitPct: -40.51, allocationPct: 0.05, averageCost: 98.74, position: 0.48, holdingPeriodDays: 456, tone: 'green' },
+    { ticker: 'SBUX', company: 'Starbucks Corp.', lastPrice: 101.51, changePct: 0, marketValue: 22.33, netProfit: -8.8, netProfitPct: -28.27, allocationPct: 0.04, averageCost: 141.51, position: 0.22, holdingPeriodDays: 234, tone: 'gold' },
+    { ticker: 'AXP', company: 'American Express Co.', lastPrice: 304.28, changePct: 0, marketValue: 100.41, netProfit: -13.2, netProfitPct: -11.62, allocationPct: 0.18, averageCost: 344.28, position: 0.33, holdingPeriodDays: 389, tone: 'red' },
+    { ticker: 'GE', company: 'General Electric Co.', lastPrice: 181.15, changePct: 0, marketValue: 126.8, netProfit: -28, netProfitPct: -18.09, allocationPct: 0.23, averageCost: 221.15, position: 0.7, holdingPeriodDays: 178, tone: 'green' },
+    { ticker: 'UBER', company: 'Uber Technologies Inc', lastPrice: 71.51, changePct: 0, marketValue: 16.45, netProfit: 3.45, netProfitPct: 26.54, allocationPct: 0.03, averageCost: 56.51, position: 0.23, holdingPeriodDays: 487, tone: 'green' },
+    { ticker: 'ZM', company: 'Zoom Video Communications Inc', lastPrice: 89.03, changePct: 0, marketValue: 9.79, netProfit: 3.85, netProfitPct: 64.78, allocationPct: 0.02, averageCost: 54.03, position: 0.11, holdingPeriodDays: 276, tone: 'red' },
+    { ticker: 'CAT', company: 'Caterpillar Inc.', lastPrice: 406.35, changePct: 0, marketValue: 77.21, netProfit: -7.6, netProfitPct: -8.96, allocationPct: 0.14, averageCost: 446.35, position: 0.19, holdingPeriodDays: 87, tone: 'blue' },
+    { ticker: 'HON', company: 'Honeywell International Inc.', lastPrice: 229.64, changePct: 0, marketValue: 50.52, netProfit: -8.8, netProfitPct: -14.83, allocationPct: 0.09, averageCost: 269.64, position: 0.22, holdingPeriodDays: 276, tone: 'orange' },
+    { ticker: 'PYPL', company: 'PayPal Holdings Inc.', lastPrice: 86.57, changePct: 0, marketValue: 32.03, netProfit: -14.8, netProfitPct: -31.6, allocationPct: 0.06, averageCost: 126.57, position: 0.37, holdingPeriodDays: 412, tone: 'orange' }
   ];
 
   protected readonly igFinancialSampleRows: IgFinancialSampleRow[] = this.igFinancialSeedRows.map((row) => ({
@@ -516,6 +646,10 @@ export class App implements OnInit {
   protected chartPalette = ['#7b62e8', '#2ab184', '#f0a12c', '#d84b98'];
   protected trendBrushes = [this.chartPalette[0], this.chartPalette[3]];
   protected dealsBrushes = [this.chartPalette[0]];
+  protected readonly fleetUtilizationComparisonBrushes = ['#ef3f81', '#48bc5e'];
+  protected readonly fleetCostChartBrushes = ['#4c8be7', '#ef3f81', '#48bc5e', '#e2b04f'];
+  protected readonly fleetChartLabelColor = '#aeb7c8';
+  protected readonly fleetChartGridlineColor = 'rgba(255, 255, 255, 0.18)';
 
   protected readonly leaderboard: LeaderboardItem[] = [
     { rank: 1, name: 'Dana Voss', quota: '128% of quota', amount: '$312,400', delta: '18%', positive: true },
@@ -549,6 +683,741 @@ export class App implements OnInit {
     { company: 'Harborline Media', region: 'West', stage: 'Negotiation', value: '$28,700', rep: 'Leo Martin', source: 'Outbound', when: '1w ago', stageClass: 'stage-negotiation' },
     { company: 'Pioneer Metals', region: 'Central', stage: 'Qualified', value: '$76,300', rep: 'Sofia Kim', source: 'Conference', when: '1w ago', stageClass: 'stage-qualified' }
   ];
+
+  protected readonly fleetVehicles: FleetVehicle[] = [
+    {
+      id: 'A00101',
+      licensePlate: 'KVG 8850',
+      make: 'Ford',
+      model: 'Focus',
+      type: 'Hatchback',
+      vin: '1FADP3F24HL312717',
+      status: 'Active',
+      locationCity: 'New York, NY',
+      locationGps: '40.743828, -74.037982',
+      specs: {
+        engine: '1.5 TSI',
+        generation: 'Focus Mk4',
+        year: 2020,
+        fuelType: 'Gasoline',
+        power: '150 Hp',
+        mileage: '28,140 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1498 cm3',
+        color: 'Blue',
+        transmission: 'Automatic',
+        msrp: '$24,700',
+        tollPassId: 'EZ-193482'
+      }
+    },
+    {
+      id: 'A00102',
+      licensePlate: '5VLZ 91',
+      make: 'Ford',
+      model: 'Focus',
+      type: 'Hatchback',
+      vin: 'WF0KXXGCKCY565571',
+      status: 'Active',
+      locationCity: 'Boston, MA',
+      locationGps: '42.352104, -71.075238',
+      specs: {
+        engine: '1.0 EcoBoost',
+        generation: 'Focus Mk3',
+        year: 2019,
+        fuelType: 'Gasoline',
+        power: '125 Hp',
+        mileage: '32,905 mi',
+        doorsSeats: '5 / 5',
+        cubature: '999 cm3',
+        color: 'Silver',
+        transmission: 'Manual',
+        msrp: '$20,900',
+        tollPassId: 'EZ-402112'
+      }
+    },
+    {
+      id: 'A00103',
+      licensePlate: 'C10 EFF',
+      make: 'VW',
+      model: 'Passat',
+      type: 'Station Wagon',
+      vin: '1VWZYZ33DER623111',
+      status: 'Available',
+      locationCity: 'Camden, NJ',
+      locationGps: '39.926602, -75.105908',
+      specs: {
+        engine: '1.6 GDI',
+        generation: 'Passat B8',
+        year: 2021,
+        fuelType: 'Gasoline',
+        power: '128 Hp',
+        mileage: '18,200 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1591 cm3',
+        color: 'White',
+        transmission: 'Automatic',
+        msrp: '$21,900',
+        tollPassId: 'EZ-000000'
+      }
+    },
+    {
+      id: 'A00104',
+      licensePlate: 'KUM 0269',
+      make: 'VW',
+      model: 'Passat',
+      type: 'Station Wagon',
+      vin: '1VWZYZ33ZWE623426',
+      status: 'Active',
+      locationCity: 'Philadelphia, PA',
+      locationGps: '39.992220, -75.141041',
+      specs: {
+        engine: '2.0 TDI',
+        generation: 'Passat B8',
+        year: 2019,
+        fuelType: 'Diesel',
+        power: '150 Hp',
+        mileage: '35,900 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1968 cm3',
+        color: 'Black',
+        transmission: 'Automatic',
+        msrp: '$23,500',
+        tollPassId: 'EZ-733492'
+      }
+    },
+    {
+      id: 'A00105',
+      licensePlate: 'C10 UAA',
+      make: 'VW',
+      model: 'Golf',
+      type: 'Hatchback',
+      vin: 'WVWZZZ3BZWE689725',
+      status: 'Active',
+      locationCity: 'Camden, NJ',
+      locationGps: '39.935249, -75.101969',
+      specs: {
+        engine: '1.4 TSI',
+        generation: 'Golf Mk7',
+        year: 2018,
+        fuelType: 'Gasoline',
+        power: '122 Hp',
+        mileage: '40,120 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1395 cm3',
+        color: 'Gray',
+        transmission: 'Manual',
+        msrp: '$19,800',
+        tollPassId: 'EZ-118843'
+      }
+    },
+    {
+      id: 'A00106',
+      licensePlate: 'C34 VBU',
+      make: 'Kia',
+      model: 'Ceed',
+      type: 'Hatchback',
+      vin: 'U5YFF23429L032112',
+      status: 'Available',
+      locationCity: 'Camden, NJ',
+      locationGps: '39.920728, -75.113277',
+      specs: {
+        engine: '1.4 MPI',
+        generation: 'Ceed CD',
+        year: 2020,
+        fuelType: 'Gasoline',
+        power: '100 Hp',
+        mileage: '21,860 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1368 cm3',
+        color: 'Red',
+        transmission: 'Manual',
+        msrp: '$18,700',
+        tollPassId: 'EZ-290315'
+      }
+    },
+    {
+      id: 'A00107',
+      licensePlate: 'MA MN4567',
+      make: 'Honda',
+      model: 'Civic',
+      type: 'Sedan',
+      vin: '19XFC2F59HEE67890',
+      status: 'In Maintenance',
+      locationCity: 'Cranbury, NJ',
+      locationGps: '40.306846, -74.508342',
+      specs: {
+        engine: '2.0 i-VTEC',
+        generation: 'Civic X',
+        year: 2018,
+        fuelType: 'Gasoline',
+        power: '158 Hp',
+        mileage: '51,100 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1996 cm3',
+        color: 'White',
+        transmission: 'CVT',
+        msrp: '$22,400',
+        tollPassId: 'EZ-512009'
+      }
+    },
+    {
+      id: 'A00108',
+      licensePlate: 'NY LK1234',
+      make: 'Toyota',
+      model: 'Corolla',
+      type: 'Sedan',
+      vin: 'JTDBR32E330C87654',
+      status: 'In Maintenance',
+      locationCity: 'Cranbury, NJ',
+      locationGps: '40.306846, -74.508342',
+      specs: {
+        engine: '1.8 Hybrid',
+        generation: 'Corolla E210',
+        year: 2021,
+        fuelType: 'Hybrid',
+        power: '121 Hp',
+        mileage: '26,470 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1798 cm3',
+        color: 'Pearl White',
+        transmission: 'e-CVT',
+        msrp: '$23,100',
+        tollPassId: 'EZ-476237'
+      }
+    },
+    {
+      id: 'A00109',
+      licensePlate: 'NJ RQ2714',
+      make: 'Hyundai',
+      model: 'Elantra',
+      type: 'Sedan',
+      vin: 'KMHD84LF8LU123409',
+      status: 'Active',
+      locationCity: 'Jersey City, NJ',
+      locationGps: '40.728157, -74.077642',
+      specs: {
+        engine: '2.0 MPI',
+        generation: 'Elantra CN7',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '147 Hp',
+        mileage: '17,430 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1999 cm3',
+        color: 'Graphite',
+        transmission: 'CVT',
+        msrp: '$22,900',
+        tollPassId: 'EZ-384225'
+      }
+    },
+    {
+      id: 'A00110',
+      licensePlate: 'PA XH8802',
+      make: 'Subaru',
+      model: 'Outback',
+      type: 'SUV',
+      vin: '4S4BTANC6M3177410',
+      status: 'Available',
+      locationCity: 'Allentown, PA',
+      locationGps: '40.608430, -75.490183',
+      specs: {
+        engine: '2.5 Boxer',
+        generation: 'Outback BT',
+        year: 2021,
+        fuelType: 'Gasoline',
+        power: '182 Hp',
+        mileage: '24,680 mi',
+        doorsSeats: '5 / 5',
+        cubature: '2498 cm3',
+        color: 'Autumn Green',
+        transmission: 'CVT',
+        msrp: '$31,600',
+        tollPassId: 'EZ-621450'
+      }
+    },
+    {
+      id: 'A00111',
+      licensePlate: 'CT MM5021',
+      make: 'Mazda',
+      model: 'CX-5',
+      type: 'SUV',
+      vin: 'JM3KFACM8N0145211',
+      status: 'Active',
+      locationCity: 'New Haven, CT',
+      locationGps: '41.305561, -72.927067',
+      specs: {
+        engine: '2.5 Skyactiv-G',
+        generation: 'CX-5 KF',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '187 Hp',
+        mileage: '13,560 mi',
+        doorsSeats: '5 / 5',
+        cubature: '2488 cm3',
+        color: 'Machine Gray',
+        transmission: 'Automatic',
+        msrp: '$30,200',
+        tollPassId: 'EZ-245903'
+      }
+    },
+    {
+      id: 'A00112',
+      licensePlate: 'DE KR9940',
+      make: 'Chevrolet',
+      model: 'Malibu',
+      type: 'Sedan',
+      vin: '1G1ZD5ST6MF204512',
+      status: 'In Maintenance',
+      locationCity: 'Wilmington, DE',
+      locationGps: '39.744655, -75.548390',
+      specs: {
+        engine: '1.5 Turbo',
+        generation: 'Malibu IX',
+        year: 2020,
+        fuelType: 'Gasoline',
+        power: '160 Hp',
+        mileage: '43,910 mi',
+        doorsSeats: '4 / 5',
+        cubature: '1490 cm3',
+        color: 'Summit White',
+        transmission: 'CVT',
+        msrp: '$24,400',
+        tollPassId: 'EZ-777213'
+      }
+    },
+    {
+      id: 'A00113',
+      licensePlate: 'NJ ZT4408',
+      make: 'Nissan',
+      model: 'Altima',
+      type: 'Sedan',
+      vin: '1N4BL4DV9NN309113',
+      status: 'Active',
+      locationCity: 'Newark, NJ',
+      locationGps: '40.735657, -74.172367',
+      specs: {
+        engine: '2.5 DOHC',
+        generation: 'Altima L34',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '188 Hp',
+        mileage: '15,880 mi',
+        doorsSeats: '4 / 5',
+        cubature: '2488 cm3',
+        color: 'Gun Metallic',
+        transmission: 'CVT',
+        msrp: '$25,950',
+        tollPassId: 'EZ-558194'
+      }
+    },
+    {
+      id: 'A00114',
+      licensePlate: 'NY PU6172',
+      make: 'Kia',
+      model: 'Sportage',
+      type: 'SUV',
+      vin: 'KNDPU3AF2P7014114',
+      status: 'Available',
+      locationCity: 'Yonkers, NY',
+      locationGps: '40.931210, -73.898747',
+      specs: {
+        engine: '2.5 GDI',
+        generation: 'Sportage NQ5',
+        year: 2023,
+        fuelType: 'Gasoline',
+        power: '187 Hp',
+        mileage: '9,420 mi',
+        doorsSeats: '5 / 5',
+        cubature: '2497 cm3',
+        color: 'Sapphire Blue',
+        transmission: 'Automatic',
+        msrp: '$29,300',
+        tollPassId: 'EZ-163590'
+      }
+    },
+    {
+      id: 'A00115',
+      licensePlate: 'PA JT2855',
+      make: 'Honda',
+      model: 'CR-V',
+      type: 'SUV',
+      vin: '2HKRS4H76PH631115',
+      status: 'Active',
+      locationCity: 'King of Prussia, PA',
+      locationGps: '40.089340, -75.385140',
+      specs: {
+        engine: '1.5 Turbo',
+        generation: 'CR-V VI',
+        year: 2023,
+        fuelType: 'Gasoline',
+        power: '190 Hp',
+        mileage: '11,070 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1498 cm3',
+        color: 'Urban Gray',
+        transmission: 'CVT',
+        msrp: '$33,100',
+        tollPassId: 'EZ-449081'
+      }
+    },
+    {
+      id: 'A00116',
+      licensePlate: 'MA CF7201',
+      make: 'Toyota',
+      model: 'RAV4',
+      type: 'SUV',
+      vin: '2T3P1RFV1NW181116',
+      status: 'In Maintenance',
+      locationCity: 'Cambridge, MA',
+      locationGps: '42.366978, -71.105615',
+      specs: {
+        engine: '2.5 Dynamic Force',
+        generation: 'RAV4 XA50',
+        year: 2021,
+        fuelType: 'Gasoline',
+        power: '203 Hp',
+        mileage: '29,540 mi',
+        doorsSeats: '5 / 5',
+        cubature: '2487 cm3',
+        color: 'Lunar Rock',
+        transmission: 'Automatic',
+        msrp: '$31,850',
+        tollPassId: 'EZ-903374'
+      }
+    },
+    {
+      id: 'A00117',
+      licensePlate: 'NJ HB9916',
+      make: 'Ford',
+      model: 'Escape',
+      type: 'SUV',
+      vin: '1FMCU9H65NUA89117',
+      status: 'Active',
+      locationCity: 'Princeton, NJ',
+      locationGps: '40.357298, -74.667221',
+      specs: {
+        engine: '1.5 EcoBoost',
+        generation: 'Escape IV',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '181 Hp',
+        mileage: '16,905 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1498 cm3',
+        color: 'Carbonized Gray',
+        transmission: 'Automatic',
+        msrp: '$28,700',
+        tollPassId: 'EZ-528606'
+      }
+    },
+    {
+      id: 'A00118',
+      licensePlate: 'RI DS4307',
+      make: 'Volkswagen',
+      model: 'Tiguan',
+      type: 'SUV',
+      vin: '3VV2B7AX4NM091118',
+      status: 'Available',
+      locationCity: 'Providence, RI',
+      locationGps: '41.824577, -71.412118',
+      specs: {
+        engine: '2.0 TSI',
+        generation: 'Tiguan AD1',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '184 Hp',
+        mileage: '14,250 mi',
+        doorsSeats: '5 / 7',
+        cubature: '1984 cm3',
+        color: 'Atlantic Blue',
+        transmission: 'Automatic',
+        msrp: '$30,900',
+        tollPassId: 'EZ-640125'
+      }
+    },
+    {
+      id: 'A00119',
+      licensePlate: 'PA LL2033',
+      make: 'Jeep',
+      model: 'Cherokee',
+      type: 'SUV',
+      vin: '1C4PJMBX2ND601119',
+      status: 'Active',
+      locationCity: 'Lancaster, PA',
+      locationGps: '40.037876, -76.305514',
+      specs: {
+        engine: '3.2 Pentastar',
+        generation: 'Cherokee KL',
+        year: 2021,
+        fuelType: 'Gasoline',
+        power: '271 Hp',
+        mileage: '22,180 mi',
+        doorsSeats: '5 / 5',
+        cubature: '3239 cm3',
+        color: 'Granite Crystal',
+        transmission: 'Automatic',
+        msrp: '$34,750',
+        tollPassId: 'EZ-710244'
+      }
+    },
+    {
+      id: 'A00120',
+      licensePlate: 'NY FN8150',
+      make: 'Chevrolet',
+      model: 'Equinox',
+      type: 'SUV',
+      vin: '3GNAXKEV4NL271120',
+      status: 'In Maintenance',
+      locationCity: 'Albany, NY',
+      locationGps: '42.652580, -73.756233',
+      specs: {
+        engine: '1.5 Turbo',
+        generation: 'Equinox III',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '175 Hp',
+        mileage: '20,640 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1490 cm3',
+        color: 'Mosaic Black',
+        transmission: 'Automatic',
+        msrp: '$28,150',
+        tollPassId: 'EZ-862337'
+      }
+    },
+    {
+      id: 'A00121',
+      licensePlate: 'NJ QC3302',
+      make: 'Hyundai',
+      model: 'Tucson',
+      type: 'SUV',
+      vin: '5NMJB3AE4PH331121',
+      status: 'Active',
+      locationCity: 'Edison, NJ',
+      locationGps: '40.518715, -74.412095',
+      specs: {
+        engine: '2.5 Smartstream',
+        generation: 'Tucson NX4',
+        year: 2023,
+        fuelType: 'Gasoline',
+        power: '187 Hp',
+        mileage: '8,960 mi',
+        doorsSeats: '5 / 5',
+        cubature: '2497 cm3',
+        color: 'Amazon Gray',
+        transmission: 'Automatic',
+        msrp: '$29,980',
+        tollPassId: 'EZ-332144'
+      }
+    },
+    {
+      id: 'A00122',
+      licensePlate: 'CT YA1948',
+      make: 'Nissan',
+      model: 'Rogue',
+      type: 'SUV',
+      vin: 'JN8BT3BB5PW431122',
+      status: 'Available',
+      locationCity: 'Stamford, CT',
+      locationGps: '41.053430, -73.538734',
+      specs: {
+        engine: '1.5 VC-Turbo',
+        generation: 'Rogue T33',
+        year: 2023,
+        fuelType: 'Gasoline',
+        power: '201 Hp',
+        mileage: '7,850 mi',
+        doorsSeats: '5 / 5',
+        cubature: '1497 cm3',
+        color: 'Caspian Blue',
+        transmission: 'CVT',
+        msrp: '$31,400',
+        tollPassId: 'EZ-571890'
+      }
+    },
+    {
+      id: 'A00123',
+      licensePlate: 'MA GX6243',
+      make: 'Ford',
+      model: 'Transit Connect',
+      type: 'Van',
+      vin: 'NM0LS7E21N1561123',
+      status: 'Active',
+      locationCity: 'Worcester, MA',
+      locationGps: '42.262593, -71.802293',
+      specs: {
+        engine: '2.0 GDI',
+        generation: 'Transit Connect II',
+        year: 2022,
+        fuelType: 'Gasoline',
+        power: '162 Hp',
+        mileage: '19,770 mi',
+        doorsSeats: '4 / 2',
+        cubature: '1999 cm3',
+        color: 'Frozen White',
+        transmission: 'Automatic',
+        msrp: '$31,250',
+        tollPassId: 'EZ-150763'
+      }
+    },
+    {
+      id: 'A00124',
+      licensePlate: 'PA WR5118',
+      make: 'Ram',
+      model: 'ProMaster City',
+      type: 'Van',
+      vin: 'ZFBHRFAB7N6T31124',
+      status: 'In Maintenance',
+      locationCity: 'Reading, PA',
+      locationGps: '40.335648, -75.926875',
+      specs: {
+        engine: '2.4 Tigershark',
+        generation: 'ProMaster City VM',
+        year: 2021,
+        fuelType: 'Gasoline',
+        power: '178 Hp',
+        mileage: '33,420 mi',
+        doorsSeats: '4 / 2',
+        cubature: '2360 cm3',
+        color: 'Bright White',
+        transmission: 'Automatic',
+        msrp: '$29,700',
+        tollPassId: 'EZ-938522'
+      }
+    }
+  ];
+
+  protected readonly fleetStatusFilter = signal<FleetStatusFilter>('all');
+  protected readonly fleetSearchQuery = signal('');
+  protected readonly filteredFleetVehicles = computed(() => {
+    const query = this.fleetSearchQuery().trim().toLowerCase();
+    const status = this.fleetStatusFilter();
+
+    return this.fleetVehicles.filter((vehicle) => {
+      if (status !== 'all' && vehicle.status !== status) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      const searchTarget = [
+        vehicle.id,
+        vehicle.licensePlate,
+        vehicle.vin,
+        vehicle.make,
+        vehicle.model,
+        vehicle.locationCity
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      return searchTarget.includes(query);
+    });
+  });
+
+  protected readonly fleetMetrics = computed<FleetMetric[]>(() => {
+    const active = this.fleetVehicles.filter((vehicle) => vehicle.status === 'Active').length;
+    const available = this.fleetVehicles.filter((vehicle) => vehicle.status === 'Available').length;
+    const maintenance = this.fleetVehicles.filter((vehicle) => vehicle.status === 'In Maintenance').length;
+
+    return [
+      { label: 'All vehicles', value: this.fleetVehicles.length },
+      { label: 'Active', value: active },
+      { label: 'Available', value: available },
+      { label: 'In Maintenance', value: maintenance }
+    ];
+  });
+
+  protected readonly employees: EmployeeRecord[] = [
+    { avatarUrl: 'https://i.pravatar.cc/48?img=5', firstName: 'Grace', lastName: 'Moore', satisfactionRating: 4, employmentType: 'Contract', emailAddress: 'grace.moore@example.com', department: 'Finance', registeredOn: 'Aug 19, 2025, 11:58:46 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=11', firstName: 'Charlie', lastName: 'Jones', satisfactionRating: 3, employmentType: 'Part-Time', emailAddress: 'charlie.jones@example.com', department: 'Finance', registeredOn: 'Apr 3, 2026, 7:13:25 AM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=13', firstName: 'Peter', lastName: 'Jones', satisfactionRating: 4, employmentType: 'Part-Time', emailAddress: 'peter.jones@example.com', department: 'Finance', registeredOn: 'Nov 5, 2025, 2:49:26 AM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=17', firstName: 'Charlie', lastName: 'Thomas', satisfactionRating: 1, employmentType: 'Part-Time', emailAddress: 'charlie.thomas@example.com', department: 'Finance', registeredOn: 'Oct 26, 2025, 10:59:10 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=20', firstName: 'Grace', lastName: 'Williams', satisfactionRating: 4, employmentType: 'Part-Time', emailAddress: 'grace.williams@example.com', department: 'Engineering', registeredOn: 'Nov 17, 2025, 7:39:09 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=28', firstName: 'Henry', lastName: 'Johnson', satisfactionRating: 3, employmentType: 'Contract', emailAddress: 'henry.johnson@example.com', department: 'Finance', registeredOn: 'Nov 11, 2025, 7:23:03 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=32', firstName: 'Eve', lastName: 'Taylor', satisfactionRating: 3, employmentType: 'Contract', emailAddress: 'eve.taylor@example.com', department: 'Sales', registeredOn: 'Apr 12, 2026, 11:09:11 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=36', firstName: 'Jane', lastName: 'Davis', satisfactionRating: 5, employmentType: 'Full-Time', emailAddress: 'jane.davis@example.com', department: 'Marketing', registeredOn: 'Sep 21, 2025, 11:13:08 AM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=42', firstName: 'Kate', lastName: 'Jackson', satisfactionRating: 4, employmentType: 'Full-Time', emailAddress: 'kate.jackson@example.com', department: 'Engineering', registeredOn: 'Dec 19, 2025, 11:53:02 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=51', firstName: 'Jack', lastName: 'Johnson', satisfactionRating: 4, employmentType: 'Contract', emailAddress: 'jack.johnson@example.com', department: 'Finance', registeredOn: 'Sep 5, 2025, 5:39:57 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=56', firstName: 'Noah', lastName: 'Harris', satisfactionRating: 3, employmentType: 'Contract', emailAddress: 'noah.harris@example.com', department: 'Finance', registeredOn: 'Aug 30, 2025, 10:30:10 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=62', firstName: 'Alice', lastName: 'Garcia', satisfactionRating: 3, employmentType: 'Contract', emailAddress: 'alice.garcia@example.com', department: 'Engineering', registeredOn: 'Aug 1, 2025, 8:31:53 PM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=69', firstName: 'Rachel', lastName: 'Miller', satisfactionRating: 4, employmentType: 'Full-Time', emailAddress: 'rachel.miller@example.com', department: 'Marketing', registeredOn: 'Oct 14, 2025, 6:37:08 AM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=72', firstName: 'John', lastName: 'Brown', satisfactionRating: 5, employmentType: 'Full-Time', emailAddress: 'john.brown@example.com', department: 'Finance', registeredOn: 'Nov 19, 2025, 1:07:22 AM' },
+    { avatarUrl: 'https://i.pravatar.cc/48?img=77', firstName: 'Diana', lastName: 'Moore', satisfactionRating: 4, employmentType: 'Full-Time', emailAddress: 'diana.moore@example.com', department: 'Engineering', registeredOn: 'Jul 18, 2026, 4:04:31 AM' }
+  ];
+
+  protected readonly employeeAvatarCellTemplate = (context: IgcCellContext<EmployeeRecord>): TemplateResult => {
+    const employee = context.row.data;
+    if (!employee) {
+      return html``;
+    }
+
+    const initials = this.employeeInitials(employee);
+    const background = this.employeeAvatarColor(employee);
+
+    return html`
+      <div style="display:flex; align-items:center; justify-content:center;">
+        <igc-avatar
+          class="employee-directory-avatar"
+          shape="circle"
+          initials="${initials}"
+          aria-label="${employee.firstName} ${employee.lastName}"
+          style="--ig-avatar-size:32px; --ig-avatar-background:${background}; --ig-avatar-color:#ffffff;"
+        ></igc-avatar>
+      </div>
+    `;
+  };
+
+  protected readonly employeeRegisteredOnCellTemplate = (context: IgcCellContext<EmployeeRecord>): TemplateResult => {
+    const employee = context.row.data;
+    if (!employee) {
+      return html``;
+    }
+
+    return html`
+      <span style="display:block; white-space:normal; line-height:1.25; overflow-wrap:break-word;">
+        ${employee.registeredOn}
+      </span>
+    `;
+  };
+
+  protected readonly employeeRatingCellTemplate = (context: IgcCellContext<EmployeeRecord>): TemplateResult => {
+    const employee = context.row.data;
+    if (!employee) {
+      return html``;
+    }
+
+    return html`
+      <igc-rating
+        readonly
+        .value=${employee.satisfactionRating}
+        .max=${5}
+        style="--symbol-full-color:#f0a12c; --symbol-empty-color:#c0c8d3;"
+      ></igc-rating>
+    `;
+  };
+
+  protected readonly employeeEmploymentCellTemplate = (context: IgcCellContext<EmployeeRecord>): TemplateResult => {
+    const employee = context.row.data;
+    if (!employee) {
+      return html``;
+    }
+
+    const type = employee.employmentType;
+    return html`<span style="${this.employeeEmploymentPillStyle(type)}">${type}</span>`;
+  };
+
+  protected readonly employeeDepartmentCellTemplate = (context: IgcCellContext<EmployeeRecord>): TemplateResult => {
+    const employee = context.row.data;
+    if (!employee) {
+      return html``;
+    }
+
+    const department = employee.department;
+    return html`<span style="${this.employeeDepartmentPillStyle(department)}">${department}</span>`;
+  };
 
   ngOnInit(): void {
     const resolvedPalette = this.resolveChartPalette();
@@ -604,6 +1473,321 @@ export class App implements OnInit {
     return this.currentPage === 'financeSample' ? 'IG Financial Sample' : 'Financial AG Grid';
   }
 
+  protected fleetStatusClass(status: FleetVehicle['status']): string {
+    if (status === 'Active') {
+      return 'status-active';
+    }
+
+    if (status === 'Available') {
+      return 'status-available';
+    }
+
+    return 'status-maintenance';
+  }
+
+  protected isFleetFilterActive(filter: FleetStatusFilter): boolean {
+    return this.fleetStatusFilter() === filter;
+  }
+
+  protected setFleetFilter(filter: FleetStatusFilter): void {
+    this.fleetStatusFilter.set(filter);
+  }
+
+  protected onFleetSearch(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.fleetSearchQuery.set(target.value);
+  }
+
+  protected fleetTripSummary(vehicle: FleetVehicle): { trips: number; totalDistance: string; avgTrip: string } {
+    const seed = this.fleetSeed(vehicle);
+    const trips = 18 + (seed % 8);
+    const totalMiles = 248 + (seed % 9) * 16;
+    const avgTrip = totalMiles / trips;
+
+    return {
+      trips,
+      totalDistance: `${this.formatWholeNumber(totalMiles)} mi`,
+      avgTrip: `${avgTrip.toFixed(1)} mi`
+    };
+  }
+
+  protected fleetTripHistory(vehicle: FleetVehicle): FleetTripRow[] {
+    const seed = this.fleetSeed(vehicle);
+    const depot = `Depot - ${this.fleetCity(vehicle)}`;
+    const client = `Client Site - ${this.fleetCity(vehicle)}`;
+    const warehouse = `Warehouse - ${this.fleetCity(vehicle)}`;
+    const regional = `Regional Office - ${this.fleetCity(vehicle)}`;
+    const service = `Service Hub - ${this.fleetCity(vehicle)}`;
+    const baseDistance = 8.4 + (seed % 5) * 1.3;
+    const currentMileage = this.fleetMileageValue(vehicle);
+    const tripDistances = [
+      Number((baseDistance + 4.5).toFixed(1)),
+      Number((baseDistance + 0.1).toFixed(1)),
+      Number((baseDistance + 8.8).toFixed(1)),
+      Number((baseDistance + 8.1).toFixed(1)),
+      Number((baseDistance + 5.2).toFixed(1)),
+      Number((baseDistance + 6.6).toFixed(1))
+    ];
+
+    let runningMeter = currentMileage + tripDistances.reduce((sum, value) => sum + value, 0);
+    const buildMeters = (distance: number): { startMeter: string; endMeter: string } => {
+      const endMeterValue = runningMeter;
+      const startMeterValue = Math.max(0, endMeterValue - distance);
+      runningMeter = startMeterValue;
+
+      return {
+        startMeter: `${this.formatOneDecimal(startMeterValue)} mi`,
+        endMeter: `${this.formatOneDecimal(endMeterValue)} mi`
+      };
+    };
+
+    return [
+      { date: 'Jul 22', from: depot, to: client, ...buildMeters(tripDistances[0]), distance: `${tripDistances[0].toFixed(1)} mi`, duration: `${24 + (seed % 9)} min`, driver: this.fleetDriverName(vehicle, 0) },
+      { date: 'Jul 21', from: client, to: depot, ...buildMeters(tripDistances[1]), distance: `${tripDistances[1].toFixed(1)} mi`, duration: `${19 + (seed % 6)} min`, driver: this.fleetDriverName(vehicle, 0) },
+      { date: 'Jul 19', from: depot, to: warehouse, ...buildMeters(tripDistances[2]), distance: `${tripDistances[2].toFixed(1)} mi`, duration: `${32 + (seed % 10)} min`, driver: this.fleetDriverName(vehicle, 1) },
+      { date: 'Jul 17', from: warehouse, to: depot, ...buildMeters(tripDistances[3]), distance: `${tripDistances[3].toFixed(1)} mi`, duration: `${30 + (seed % 9)} min`, driver: this.fleetDriverName(vehicle, 1) },
+      { date: 'Jul 15', from: depot, to: regional, ...buildMeters(tripDistances[4]), distance: `${tripDistances[4].toFixed(1)} mi`, duration: `${26 + (seed % 8)} min`, driver: this.fleetDriverName(vehicle, 2) },
+      { date: 'Jul 13', from: regional, to: service, ...buildMeters(tripDistances[5]), distance: `${tripDistances[5].toFixed(1)} mi`, duration: `${28 + (seed % 7)} min`, driver: this.fleetDriverName(vehicle, 3) }
+    ];
+  }
+
+  protected fleetMaintenanceNotice(vehicle: FleetVehicle): string {
+    const seed = this.fleetSeed(vehicle);
+    const services = ['Tire rotation & balance', 'Brake fluid inspection', 'Air filter replacement', 'Multi-point inspection'];
+    const service = services[seed % services.length];
+    const dueMileage = this.nextServiceMileage(vehicle);
+    return `Next service due: ${service} · est. ${this.formatWholeNumber(dueMileage)} mi`;
+  }
+
+  protected fleetMaintenanceRows(vehicle: FleetVehicle): FleetMaintenanceRow[] {
+    const mileage = this.fleetMileageValue(vehicle);
+    const dueMileage = this.nextServiceMileage(vehicle);
+
+    return [
+      { date: 'Jun 28, 2026', service: 'Oil & filter change', odometer: `${this.formatWholeNumber(Math.max(0, mileage - 2700))} mi`, cost: '$85', status: 'Completed' },
+      { date: 'Mar 14, 2026', service: 'Brake pad replacement (front)', odometer: `${this.formatWholeNumber(Math.max(0, mileage - 6050))} mi`, cost: '$340', status: 'Completed' },
+      { date: 'Dec 02, 2025', service: 'Annual inspection', odometer: `${this.formatWholeNumber(Math.max(0, mileage - 11500))} mi`, cost: '$120', status: 'Completed' },
+      { date: 'Aug 30, 2026', service: this.fleetMaintenanceNotice(vehicle).split(': ')[1].split(' · ')[0], odometer: `est. ${this.formatWholeNumber(dueMileage)} mi`, cost: '—', status: 'Scheduled' }
+    ];
+  }
+
+  protected fleetMaintenanceStatusClass(status: FleetMaintenanceRow['status']): string {
+    return status === 'Completed' ? 'fleet-detail-pill-success' : 'fleet-detail-pill-warn';
+  }
+
+  protected fleetCostItems(vehicle: FleetVehicle): FleetCostItem[] {
+    const seed = this.fleetSeed(vehicle);
+    const maintenanceBase = vehicle.status === 'In Maintenance' ? 520 : 280;
+
+    return [
+      { label: 'Fuel / charging', value: 360 + (seed % 5) * 26, tone: 'fuel' },
+      { label: 'Maintenance', value: maintenanceBase + (seed % 4) * 25, tone: 'maintenance' },
+      { label: 'Insurance', value: 180 + (seed % 3) * 30, tone: 'insurance' },
+      { label: 'Tolls & fees', value: 54 + (seed % 6) * 7, tone: 'tolls' }
+    ];
+  }
+
+  protected fleetCostDistribution(vehicle: FleetVehicle): FleetCostDistributionPoint[] {
+    const items = this.fleetCostItems(vehicle);
+    const total = items.reduce((sum, item) => sum + item.value, 0);
+
+    return items.map((item) => ({
+      label: item.label,
+      displayLabel: `${Math.round((item.value / total) * 100)}%`,
+      percentage: `${Math.round((item.value / total) * 100)}%`,
+      value: item.value,
+      tone: item.tone
+    }));
+  }
+
+  protected fleetMonthlyOperatingSpend(vehicle: FleetVehicle): FleetMonthlySpendPoint[] {
+    const seed = this.fleetSeed(vehicle);
+    const seasonalBase = [118, 148, 208, 238, 218, 258, 278, 208, 188, 228, 208, 178];
+
+    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].map((month, index) => {
+      const variability = ((seed + index * 7) % 5) * 10;
+      const maintenanceAdjustment = vehicle.status === 'In Maintenance' && (index === 6 || index === 7) ? 22 : 0;
+      const utilizationAdjustment = vehicle.status === 'Available' && index >= 8 ? -12 : 0;
+
+      return {
+        month,
+        spend: seasonalBase[index] + variability + maintenanceAdjustment + utilizationAdjustment
+      };
+    });
+  }
+
+  protected fleetCostTotal(vehicle: FleetVehicle): string {
+    const total = this.fleetCostItems(vehicle).reduce((sum, item) => sum + item.value, 0);
+    return `$${this.formatWholeNumber(total)}`;
+  }
+
+  protected fleetCostPerMile(vehicle: FleetVehicle): string {
+    const total = this.fleetCostItems(vehicle).reduce((sum, item) => sum + item.value, 0);
+    const distance = 248 + (this.fleetSeed(vehicle) % 9) * 16;
+    return `$${(total / distance).toFixed(2)}`;
+  }
+
+  protected fleetCostDelta(vehicle: FleetVehicle): number {
+    const seed = this.fleetSeed(vehicle);
+    return vehicle.status === 'In Maintenance' ? 6 + (seed % 3) : seed % 2 === 0 ? 4 : -3;
+  }
+
+  protected fleetCostWidth(value: number, vehicle: FleetVehicle): string {
+    const total = this.fleetCostItems(vehicle).reduce((sum, item) => sum + item.value, 0);
+    return `${(value / total) * 100}%`;
+  }
+
+  protected fleetCostToneClass(tone: FleetCostItem['tone']): string {
+    return `fleet-cost-tone-${tone}`;
+  }
+
+  protected fleetUtilizationSummary(vehicle: FleetVehicle): { rate: string; activeHours: string; idleHours: string; trips: number } {
+    const seed = this.fleetSeed(vehicle);
+    const rateValue = Math.max(52, 76 - (vehicle.status === 'In Maintenance' ? 9 : 0) - (vehicle.status === 'Available' ? 4 : 0) + (seed % 5));
+    const activeHours = 92 + (seed % 16) * 2;
+    const idleHours = Math.max(18, 44 - (seed % 7) * 2 + (vehicle.status === 'Available' ? 8 : 0));
+
+    return {
+      rate: `${rateValue}%`,
+      activeHours: `${activeHours}h`,
+      idleHours: `${idleHours}h`,
+      trips: 18 + (seed % 8)
+    };
+  }
+
+  protected fleetUtilizationSeries(vehicle: FleetVehicle): FleetUtilizationComparisonPoint[] {
+    const seed = this.fleetSeed(vehicle);
+    const base2024 = 160 + (seed % 5) * 14;
+    const uplift2025 = 18 + (seed % 4) * 9;
+
+    return [
+      { month: 'Jan', utilization2024: base2024, utilization2025: base2024 + 42 },
+      { month: 'Feb', utilization2024: base2024 + 22, utilization2025: base2024 + 4 },
+      { month: 'Mar', utilization2024: base2024 + 140, utilization2025: base2024 + 118 },
+      { month: 'Apr', utilization2024: base2024 + 316, utilization2025: base2024 + 278 },
+      { month: 'May', utilization2024: base2024 + 418, utilization2025: base2024 + 472 },
+      { month: 'Jun', utilization2024: base2024 + 502, utilization2025: base2024 + 564 },
+      { month: 'Jul', utilization2024: base2024 + 560, utilization2025: base2024 + 586 + (vehicle.status === 'In Maintenance' ? -24 : uplift2025) },
+      { month: 'Aug', utilization2024: base2024 + 594, utilization2025: base2024 + 650 + (vehicle.status === 'Available' ? -22 : uplift2025) },
+      { month: 'Sep', utilization2024: base2024 + 506, utilization2025: base2024 + 480 + (vehicle.status === 'Available' ? -38 : 0) },
+      { month: 'Oct', utilization2024: base2024 + 442, utilization2025: base2024 + 646 },
+      { month: 'Nov', utilization2024: base2024 + 154, utilization2025: base2024 + 354 },
+      { month: 'Dec', utilization2024: base2024 + 52, utilization2025: base2024 + 198 }
+    ];
+  }
+
+  protected fleetVehiclePhotoUrl(vehicle: FleetVehicle): string {
+    const baseIndex = this.fleetSeed(vehicle) % this.fleetVehiclePhotoCatalog.length;
+    return this.fleetVehiclePhotoCatalog[baseIndex];
+  }
+
+  protected onFleetVehicleImageError(event: Event, vehicle: FleetVehicle): void {
+    const target = event.target;
+
+    if (!(target instanceof HTMLImageElement)) {
+      return;
+    }
+
+    const currentOffset = Number(target.dataset['fallbackIndex'] ?? '0');
+    const nextOffset = currentOffset + 1;
+    const maxRetries = this.fleetVehiclePhotoCatalog.length - 1;
+
+    if (nextOffset > maxRetries) {
+      return;
+    }
+
+    target.dataset['fallbackIndex'] = String(nextOffset);
+    const baseIndex = this.fleetSeed(vehicle) % this.fleetVehiclePhotoCatalog.length;
+    const nextIndex = (baseIndex + nextOffset) % this.fleetVehiclePhotoCatalog.length;
+    target.src = this.fleetVehiclePhotoCatalog[nextIndex];
+  }
+
+  private fleetSeed(vehicle: FleetVehicle): number {
+    return Number(vehicle.id.replace(/\D/g, '')) || 1;
+  }
+
+  private fleetCity(vehicle: FleetVehicle): string {
+    return vehicle.locationCity.split(',')[0];
+  }
+
+  private fleetMileageValue(vehicle: FleetVehicle): number {
+    return Number(vehicle.specs.mileage.replace(/[^\d]/g, '')) || 0;
+  }
+
+  private nextServiceMileage(vehicle: FleetVehicle): number {
+    const mileage = this.fleetMileageValue(vehicle);
+    return Math.ceil((mileage + 3200) / 5000) * 5000;
+  }
+
+  private fleetDriverName(vehicle: FleetVehicle, offset: number): string {
+    const drivers = ['M. Alvarez', 'R. Chen', 'S. Patel', 'J. Walker', 'A. Brooks', 'T. Nguyen'];
+    return drivers[(this.fleetSeed(vehicle) + offset) % drivers.length];
+  }
+
+  private formatWholeNumber(value: number): string {
+    return Math.round(value).toLocaleString('en-US');
+  }
+
+  private formatOneDecimal(value: number): string {
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1
+    });
+  }
+
+  protected employeeEmploymentPillStyle(type: EmployeeRecord['employmentType']): string {
+    if (type === 'Full-Time') {
+      return this.pillStyle('var(--pill-positive-bg)', 'var(--pill-positive-text)');
+    }
+
+    if (type === 'Part-Time') {
+      return this.pillStyle('var(--pill-proposal-bg)', 'var(--pill-proposal-text)');
+    }
+
+    return this.pillStyle('var(--pill-negotiation-bg)', 'var(--pill-negotiation-text)');
+  }
+
+  protected employeeDepartmentPillStyle(department: EmployeeRecord['department']): string {
+    if (department === 'Finance') {
+      return this.pillStyle('var(--pill-positive-bg)', 'var(--pill-positive-text)');
+    }
+
+    if (department === 'Engineering') {
+      return this.pillStyle('var(--pill-negotiation-bg)', 'var(--pill-negotiation-text)');
+    }
+
+    if (department === 'Marketing') {
+      return this.pillStyle('var(--pill-proposal-bg)', 'var(--pill-proposal-text)');
+    }
+
+    return this.pillStyle('var(--pill-negative-bg)', 'var(--pill-negative-text)');
+  }
+
+  private pillStyle(background: string, color: string): string {
+    return `display:inline-flex; align-items:center; border-radius:999px; padding:0.15rem 0.48rem; font-size:0.75rem; font-weight:600; background:${background}; color:${color};`;
+  }
+
+  private employeeAvatarColor(employee: EmployeeRecord): string {
+    const palette = ['#4f6bed', '#2ab184', '#f0a12c', '#d84b98', '#5b6678', '#3f8cff'];
+    const seed = `${employee.firstName}${employee.lastName}`;
+    let hash = 0;
+
+    for (const char of seed) {
+      hash = (hash << 5) - hash + char.charCodeAt(0);
+      hash |= 0;
+    }
+
+    return palette[Math.abs(hash) % palette.length];
+  }
+
+  private employeeInitials(employee: EmployeeRecord): string {
+    return `${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}`.toUpperCase();
+  }
+
   protected activeFinanceHoldings(): FinanceHolding[] {
     return this.financeHoldings;
   }
@@ -648,6 +1832,15 @@ export class App implements OnInit {
     return `${days} days`;
   }
 
+  protected financeAvatarInitials(ticker: string): string {
+    const normalized = ticker.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+    return normalized.slice(0, 3) || 'EQ';
+  }
+
+  protected financeAvatarColor(tone: FinanceTone): string {
+    return this.toneColor(tone);
+  }
+
   protected allocationWidth(value: number): string {
     const magnitude = Math.abs(value);
     if (magnitude === 0) {
@@ -661,22 +1854,6 @@ export class App implements OnInit {
     const scaled = (magnitude / this.maxAllocationPct) * 100;
     const minVisible = 6;
     return `${Math.min(100, Math.max(minVisible, scaled))}%`;
-  }
-
-  protected tickerLogo(holding: FinanceAvatarSource): string {
-    const cacheKey = `${holding.ticker}:${holding.tone}`;
-    const cached = this.tickerLogoCache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    const logo = this.buildTickerAvatarSvg(this.logoText(holding.ticker), this.toneColor(holding.tone));
-    this.tickerLogoCache.set(cacheKey, logo);
-    return logo;
-  }
-
-  private logoText(ticker: string): string {
-    return ticker.replace(/[^A-Z0-9]/gi, '').slice(0, 3).toUpperCase() || 'EQ';
   }
 
   private buildPriceTrend(ticker: string, lastPrice: number, changePct: number): PriceTrendPoint[] {
@@ -740,11 +1917,6 @@ export class App implements OnInit {
     };
 
     return colors[tone];
-  }
-
-  private buildTickerAvatarSvg(text: string, background: string): string {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="${background}"/><text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="Barlow,Segoe UI,sans-serif" font-size="24" font-weight="700" fill="#ffffff">${text}</text></svg>`;
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
   }
 
 }
