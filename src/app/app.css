@@ -901,11 +901,6 @@ h1 {
   display: block;
 }
 
-.fleet-vehicle-caption {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-}
-
 .fleet-spec-grid {
   grid-column: 2;
   display: grid;

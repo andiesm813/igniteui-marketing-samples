@@ -201,12 +201,11 @@
     <igx-grid class="fleet-master-grid" [data]="filteredFleetVehicles()" [primaryKey]="'id'" [autoGenerate]="false"
       [showGroupArea]="false">
       <igx-grid-toolbar>
-        <igx-grid-toolbar-title>Grid Toolbar</igx-grid-toolbar-title>
+        <igx-grid-toolbar-title></igx-grid-toolbar-title>
         <igx-grid-toolbar-actions>
-          <igx-grid-toolbar-advanced-filtering></igx-grid-toolbar-advanced-filtering>
           <igx-grid-toolbar-hiding></igx-grid-toolbar-hiding>
           <igx-grid-toolbar-pinning></igx-grid-toolbar-pinning>
-          <igx-grid-toolbar-exporter></igx-grid-toolbar-exporter>
+          <igx-grid-toolbar-advanced-filtering></igx-grid-toolbar-advanced-filtering>
         </igx-grid-toolbar-actions>
       </igx-grid-toolbar>
 
@@ -240,8 +239,7 @@
                         <img class="fleet-vehicle-photo" [src]="fleetVehiclePhotoUrl(dataItem)"
                           [alt]="dataItem.make + ' ' + dataItem.model" loading="lazy" decoding="async"
                           (error)="onFleetVehicleImageError($event, dataItem)" />
-                        <div class="fleet-vehicle-caption">{{ dataItem.make }} {{ dataItem.model }}</div>
-                        <small>{{ dataItem.id }}</small>
+
                       </div>
                     </igx-card-content>
                   </igx-card>
