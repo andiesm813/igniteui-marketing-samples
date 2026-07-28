@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, ElementRef, OnInit, computed, inject, signal } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, computed, inject, signal } from '@angular/core';
 import { IgxAvatarModule } from 'igniteui-angular/avatar';
 import { IgxBadgeModule } from 'igniteui-angular/badge';
 import { IgxButtonModule } from 'igniteui-angular/directives';
@@ -608,6 +608,16 @@ export class App implements OnInit {
     ...this.igFinancialSampleRows.map((row) => Math.abs(row.allocationPct)),
     0
   );
+
+  protected readonly financeAssetFilter = signal('');
+
+  protected readonly filteredIgFinancialRows = computed(() => {
+    const query = this.financeAssetFilter().trim().toLowerCase();
+    if (!query) return this.igFinancialSampleRows;
+    return this.igFinancialSampleRows.filter(
+      (row) => row.ticker.toLowerCase().includes(query) || row.company.toLowerCase().includes(query)
+    );
+  });
 
   protected readonly metrics: MetricCard[] = [
     { label: 'Revenue MTD', value: '$842.3K', delta: '12.4% vs target', positive: true, icon: 'attach_money', iconClass: 'rank-badge rank-1' },
@@ -1287,6 +1297,17 @@ export class App implements OnInit {
     }
   ];
 
+  private readonly viewportWidth = signal(typeof window !== 'undefined' ? window.innerWidth : 1280);
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.viewportWidth.set(window.innerWidth);
+  }
+
+  protected readonly hideNarrowColumns = computed(() => this.viewportWidth() < 1200);
+  protected readonly hideExtraColumns = computed(() => this.viewportWidth() < 900);
+  protected readonly hideMostColumns = computed(() => this.viewportWidth() < 700);
+
   protected readonly fleetStatusFilter = signal<FleetStatusFilter>('all');
   protected readonly fleetSearchQuery = signal('');
   protected readonly filteredFleetVehicles = computed(() => {
@@ -1500,6 +1521,15 @@ export class App implements OnInit {
     }
 
     this.fleetSearchQuery.set(target.value);
+  }
+
+  protected onFinanceAssetSearch(event: Event): void {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement)) {
+      return;
+    }
+
+    this.financeAssetFilter.set(target.value);
   }
 
   protected fleetTripSummary(vehicle: FleetVehicle): { trips: number; totalDistance: string; avgTrip: string } {
@@ -1826,6 +1856,17 @@ export class App implements OnInit {
 
   protected formatPercent(value: number): string {
     return `${this.percentFormatter.format(Math.abs(value))}%`;
+  }
+
+  protected badgeType(value: number): string {
+    if (value > 0) return 'success';
+    if (value < 0) return 'error';
+    return 'info';
+  }
+
+  protected badgeLabel(value: number): string {
+    const arrow = value > 0 ? '↑ ' : value < 0 ? '↓ ' : '';
+    return `${arrow}${this.formatPercent(value)}`;
   }
 
   protected formatHoldingPeriod(days: number): string {

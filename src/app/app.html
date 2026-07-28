@@ -7,14 +7,10 @@
 
       <div class="nav-actions">
         @for (link of navLinks; track link.label) {
-          <button
-            igxButton="flat"
-            class="top-link"
-            [class.active]="isActivePage(link.page)"
-            (click)="openPage(link.page)"
-          >
-            {{ link.label }}
-          </button>
+        <button igxButton="flat" class="top-link" [class.active]="isActivePage(link.page)"
+          (click)="openPage(link.page)">
+          {{ link.label }}
+        </button>
         }
       </div>
     </div>
@@ -25,7 +21,8 @@
     <header class="title-row">
       <div class="title-copy">
         <div class="status-row">
-          <igx-badge type="success" shape="square" [dot]="true" aria-label="Live status" class="success-badge"></igx-badge>
+          <igx-badge type="success" shape="square" [dot]="true" aria-label="Live status"
+            class="success-badge"></igx-badge>
           <span>LIVE · UPDATED JUST NOW</span>
         </div>
         <h1>Sales Overview</h1>
@@ -38,20 +35,16 @@
 
     <section class="metrics-grid" aria-label="KPI metrics">
       @for (item of metrics; track item.label) {
-        <igx-card class="metric-tile">
-          <igx-card-content class="metric-body">
-            <div class="metric-head">
-              <span class="metric-label">{{ item.label }}</span>
-              <igx-avatar
-                class="metric-icon {{ item.iconClass }}"
-                [size]="'small'"
-                [icon]="item.icon"
-              ></igx-avatar>
-            </div>
-            <div class="metric-value">{{ item.value }}</div>
-            <div class="metric-delta" [class.negative]="!item.positive">{{ item.delta }}</div>
-          </igx-card-content>
-        </igx-card>
+      <igx-card class="metric-tile">
+        <igx-card-content class="metric-body">
+          <div class="metric-head">
+            <span class="metric-label">{{ item.label }}</span>
+            <igx-avatar class="metric-icon {{ item.iconClass }}" [size]="'small'" [icon]="item.icon"></igx-avatar>
+          </div>
+          <div class="metric-value">{{ item.value }}</div>
+          <div class="metric-delta" [class.negative]="!item.positive">{{ item.delta }}</div>
+        </igx-card-content>
+      </igx-card>
       }
     </section>
 
@@ -71,28 +64,13 @@
           </div>
         </header>
         <div class="panel-body panel-body-chart">
-          <igx-category-chart
-            class="chart-box"
-            width="100%"
-            height="100%"
-            [dataSource]="revenueTrend"
-            xAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
-            yAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
-            xAxisLabel="month"
-            [includedProperties]="['revenue', 'targetLine']"
-            [brushes]="trendBrushes"
-            [outlines]="trendBrushes"
-            [markerBrushes]="trendBrushes"
-            [markerOutlines]="trendBrushes"
-            chartType="line"
-            [isItemHighlightingEnabled]="false"
-            [isHorizontalZoomEnabled]="false"
-            [isVerticalZoomEnabled]="false"
-            [thickness]="2"
-            [yAxisInterval]="25"
-            [yAxisMinimumValue]="620"
-            [yAxisMaximumValue]="810"
-          ></igx-category-chart>
+          <igx-category-chart class="chart-box" width="100%" height="100%" [dataSource]="revenueTrend"
+            xAxisLabelTextStyle="500 13px 'Barlow', sans-serif" yAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
+            xAxisLabel="month" [includedProperties]="['revenue', 'targetLine']" [brushes]="trendBrushes"
+            [outlines]="trendBrushes" [markerBrushes]="trendBrushes" [markerOutlines]="trendBrushes" chartType="line"
+            [isItemHighlightingEnabled]="false" [isHorizontalZoomEnabled]="false" [isVerticalZoomEnabled]="false"
+            [thickness]="2" [yAxisInterval]="25" [yAxisMinimumValue]="620"
+            [yAxisMaximumValue]="810"></igx-category-chart>
         </div>
       </article>
 
@@ -100,34 +78,22 @@
         <header class="panel-title">Revenue by Region</header>
         <div class="panel-body">
           <p class="subtle">$842K total</p>
-          <igx-doughnut-chart
-            class="donut-box" 
-            width="100%"
-            height="190px"
-            [allowSliceSelection]="true"
-            [allowSliceExplosion]="true"
-            [innerExtent]="55"
-          >
-            <igx-ring-series
-              [dataSource]="revenueByRegion"
-              valueMemberPath="value"
-              labelMemberPath="region"
-              [labelsPosition]="'outsideEnd'"
-              [showDefaultTooltip]="true"
-              [brushes]="chartPalette"
-              [outlines]="chartPalette"
-            ></igx-ring-series>
+          <igx-doughnut-chart class="donut-box" width="100%" height="190px" [allowSliceSelection]="true"
+            [allowSliceExplosion]="true" [innerExtent]="55">
+            <igx-ring-series [dataSource]="revenueByRegion" valueMemberPath="value" labelMemberPath="region"
+              [labelsPosition]="'outsideEnd'" [showDefaultTooltip]="true" [brushes]="chartPalette"
+              [outlines]="chartPalette"></igx-ring-series>
           </igx-doughnut-chart>
 
           <ul class="legend-list" aria-label="Revenue by region legend">
             @for (region of revenueByRegion; track region.region; let i = $index) {
-              <li>
-                <span class="legend-name-wrap">
-                  <span class="legend-swatch" [style.background]="chartPalette[i]"></span>
-                  <span class="legend-name">{{ region.region }}</span>
-                </span>
-                <span class="legend-value">{{ region.value }}%</span>
-              </li>
+            <li>
+              <span class="legend-name-wrap">
+                <span class="legend-swatch" [style.background]="chartPalette[i]"></span>
+                <span class="legend-name">{{ region.region }}</span>
+              </span>
+              <span class="legend-value">{{ region.value }}%</span>
+            </li>
             }
           </ul>
         </div>
@@ -140,22 +106,11 @@
         </header>
 
         <div class="panel-body">
-          <igx-category-chart
-            class="deals-chart"
-            [dataSource]="weeklyDeals"
-            xAxisLabel="day"
-            [brushes]="dealsBrushes"
-            [outlines]="dealsBrushes"
-            xAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
-            yAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
-            chartType="column"
-            [isHorizontalZoomEnabled]="false"
-            [isVerticalZoomEnabled]="false"
-            [thickness]="1"
-            [yAxisInterval]="10"
-            [yAxisMinimumValue]="0"
-            [yAxisMaximumValue]="50"
-          ></igx-category-chart>
+          <igx-category-chart class="deals-chart" [dataSource]="weeklyDeals" xAxisLabel="day" [brushes]="dealsBrushes"
+            [outlines]="dealsBrushes" xAxisLabelTextStyle="500 13px 'Barlow', sans-serif"
+            yAxisLabelTextStyle="500 13px 'Barlow', sans-serif" chartType="column" [isHorizontalZoomEnabled]="false"
+            [isVerticalZoomEnabled]="false" [thickness]="1" [yAxisInterval]="10" [yAxisMinimumValue]="0"
+            [yAxisMaximumValue]="50"></igx-category-chart>
         </div>
       </article>
 
@@ -192,28 +147,23 @@
         <div class="panel-body">
           <igx-list>
             @for (person of leaderboard; track person.rank) {
-              <igx-list-item>
-                <div class="leader-row">
-                  <div class="leader-left">
-                    <igx-avatar
-                      [size]="'small'"
-                      [initials]="person.rank.toString()"
-                      class="rank-badge"
-                      [class.rank-1]="person.rank === 1"
-                      [class.rank-2]="person.rank === 2"
-                      [class.rank-3]="person.rank === 3"
-                    ></igx-avatar>
-                    <div>
-                      <div class="leader-name">{{ person.name }}</div>
-                      <small>{{ person.quota }}</small>
-                    </div>
-                  </div>
-                  <div class="leader-right">
-                    <div class="leader-amount">{{ person.amount }}</div>
-                    <small [class.negative]="!person.positive">{{ person.delta }}</small>
+            <igx-list-item>
+              <div class="leader-row">
+                <div class="leader-left">
+                  <igx-avatar [size]="'small'" [initials]="person.rank.toString()" class="rank-badge"
+                    [class.rank-1]="person.rank === 1" [class.rank-2]="person.rank === 2"
+                    [class.rank-3]="person.rank === 3"></igx-avatar>
+                  <div>
+                    <div class="leader-name">{{ person.name }}</div>
+                    <small>{{ person.quota }}</small>
                   </div>
                 </div>
-              </igx-list-item>
+                <div class="leader-right">
+                  <div class="leader-amount">{{ person.amount }}</div>
+                  <small [class.negative]="!person.positive">{{ person.delta }}</small>
+                </div>
+              </div>
+            </igx-list-item>
             }
           </igx-list>
         </div>
@@ -230,45 +180,43 @@
     </header>
 
     <section class="fleet-chip-row" aria-label="Fleet status filters">
-      <igx-chip class="fleet-chip fleet-chip-default" [class.active]="isFleetFilterActive('all')" (click)="setFleetFilter('all')">
+      <igx-chip class="fleet-chip fleet-chip-default" [class.active]="isFleetFilterActive('all')"
+        (click)="setFleetFilter('all')">
         All vehicles {{ fleetMetrics()[0].value }}
       </igx-chip>
-      <igx-chip class="fleet-chip fleet-chip-active" [class.active]="isFleetFilterActive('Active')" (click)="setFleetFilter('Active')">
+      <igx-chip class="fleet-chip fleet-chip-active" [class.active]="isFleetFilterActive('Active')"
+        (click)="setFleetFilter('Active')">
         Active {{ fleetMetrics()[1].value }}
       </igx-chip>
-      <igx-chip class="fleet-chip fleet-chip-available" [class.active]="isFleetFilterActive('Available')" (click)="setFleetFilter('Available')">
+      <igx-chip class="fleet-chip fleet-chip-available" [class.active]="isFleetFilterActive('Available')"
+        (click)="setFleetFilter('Available')">
         Available {{ fleetMetrics()[2].value }}
       </igx-chip>
-      <igx-chip class="fleet-chip fleet-chip-maintenance" [class.active]="isFleetFilterActive('In Maintenance')" (click)="setFleetFilter('In Maintenance')">
+      <igx-chip class="fleet-chip fleet-chip-maintenance" [class.active]="isFleetFilterActive('In Maintenance')"
+        (click)="setFleetFilter('In Maintenance')">
         In Maintenance {{ fleetMetrics()[3].value }}
       </igx-chip>
     </section>
 
-    <igx-grid
-      class="fleet-master-grid"
-      [data]="filteredFleetVehicles()" 
-      [primaryKey]="'id'"
-      [autoGenerate]="false"
-      [showGroupArea]="false"
-    >
-    <igx-grid-toolbar>
+    <igx-grid class="fleet-master-grid" [data]="filteredFleetVehicles()" [primaryKey]="'id'" [autoGenerate]="false"
+      [showGroupArea]="false">
+      <igx-grid-toolbar>
         <igx-grid-toolbar-title>Grid Toolbar</igx-grid-toolbar-title>
         <igx-grid-toolbar-actions>
-            <igx-grid-toolbar-advanced-filtering></igx-grid-toolbar-advanced-filtering>
-            <igx-grid-toolbar-hiding></igx-grid-toolbar-hiding>
-            <igx-grid-toolbar-pinning></igx-grid-toolbar-pinning>
-            <igx-grid-toolbar-exporter></igx-grid-toolbar-exporter>
+          <igx-grid-toolbar-advanced-filtering></igx-grid-toolbar-advanced-filtering>
+          <igx-grid-toolbar-hiding></igx-grid-toolbar-hiding>
+          <igx-grid-toolbar-pinning></igx-grid-toolbar-pinning>
+          <igx-grid-toolbar-exporter></igx-grid-toolbar-exporter>
         </igx-grid-toolbar-actions>
-    </igx-grid-toolbar>
+      </igx-grid-toolbar>
 
-      <igx-column field="id" header="Vehicle ID" [sortable]="true" [filterable]="false" [width]="'12%'"></igx-column>
-      <igx-column field="licensePlate" header="License Plate" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
-      <igx-column field="make" header="Make" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
-      <igx-column field="model" header="Model" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
-      <igx-column field="type" header="Type" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
-      <igx-column field="vin" header="VIN" [sortable]="true" [filterable]="false" [width]="'16%'"></igx-column>
-      <igx-column field="status" header="Status" [sortable]="true" [filterable]="true" [width]="'12%'
-      ">
+      <igx-column field="id" header="Vehicle ID" [sortable]="true" [filterable]="false"></igx-column>
+      <igx-column field="licensePlate" header="License Plate" [sortable]="true" [filterable]="true"></igx-column>
+      <igx-column field="make" header="Make" [sortable]="true" [filterable]="true"></igx-column>
+      <igx-column field="model" header="Model" [sortable]="true" [filterable]="true"></igx-column>
+      <igx-column field="type" header="Type" [sortable]="true" [filterable]="true"></igx-column>
+      <igx-column field="vin" header="VIN" [sortable]="true" [filterable]="false"></igx-column>
+      <igx-column field="status" header="Status" [sortable]="true" [filterable]="true">
         <ng-template igxCell let-cell="cell">
           <span [class]="'status-display ' + fleetStatusClass(cell.value)">
             <igx-badge outlined [dot]="true" shape="square" class="status-dot" aria-hidden="true"></igx-badge>
@@ -276,7 +224,8 @@
           </span>
         </ng-template>
       </igx-column>
-      <igx-column field="locationCity" header="Location" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
+      <igx-column field="locationCity" header="Location" [sortable]="true" [filterable]="true"
+        [width]="'12%'"></igx-column>
 
       <ng-template igxGridDetail let-dataItem>
         <div class="fleet-detail-wrap">
@@ -288,14 +237,9 @@
                   <igx-card class="fleet-vehicle-card">
                     <igx-card-content>
                       <div class="fleet-vehicle-illustration">
-                        <img
-                          class="fleet-vehicle-photo"
-                          [src]="fleetVehiclePhotoUrl(dataItem)"
-                          [alt]="dataItem.make + ' ' + dataItem.model"
-                          loading="lazy"
-                          decoding="async"
-                          (error)="onFleetVehicleImageError($event, dataItem)"
-                        />
+                        <img class="fleet-vehicle-photo" [src]="fleetVehiclePhotoUrl(dataItem)"
+                          [alt]="dataItem.make + ' ' + dataItem.model" loading="lazy" decoding="async"
+                          (error)="onFleetVehicleImageError($event, dataItem)" />
                         <div class="fleet-vehicle-caption">{{ dataItem.make }} {{ dataItem.model }}</div>
                         <small>{{ dataItem.id }}</small>
                       </div>
@@ -303,13 +247,15 @@
                   </igx-card>
 
                   <div class="fleet-spec-grid">
+                    <div class="fleet-spec-item"><span>Make</span><strong>{{ dataItem.make }}</strong></div>
                     <div class="fleet-spec-item"><span>Engine</span><strong>{{ dataItem.specs.engine }}</strong></div>
                     <div class="fleet-spec-item"><span>Generation</span><strong>{{ dataItem.specs.generation }}</strong></div>
                     <div class="fleet-spec-item"><span>Year</span><strong>{{ dataItem.specs.year }}</strong></div>
                     <div class="fleet-spec-item"><span>Fuel Type</span><strong>{{ dataItem.specs.fuelType }}</strong></div>
                     <div class="fleet-spec-item"><span>Power</span><strong>{{ dataItem.specs.power }}</strong></div>
                     <div class="fleet-spec-item"><span>Mileage</span><strong>{{ dataItem.specs.mileage }}</strong></div>
-                    <div class="fleet-spec-item"><span>Doors / Seats</span><strong>{{ dataItem.specs.doorsSeats }}</strong></div>
+                    <div class="fleet-spec-item"><span>Doors</span><strong>{{ dataItem.specs.doorsSeats.split(' / ')[0] }}</strong></div>
+                    <div class="fleet-spec-item"><span>Seats</span><strong>{{ dataItem.specs.doorsSeats.split(' / ')[1] }}</strong></div>
                     <div class="fleet-spec-item"><span>Cubature</span><strong>{{ dataItem.specs.cubature }}</strong></div>
                     <div class="fleet-spec-item"><span>Color</span><strong>{{ dataItem.specs.color }}</strong></div>
                     <div class="fleet-spec-item"><span>Transmission</span><strong>{{ dataItem.specs.transmission }}</strong></div>
@@ -353,16 +299,16 @@
                     </thead>
                     <tbody>
                       @for (trip of fleetTripHistory(dataItem); track trip.date + trip.from + trip.to) {
-                        <tr>
-                          <td>{{ trip.date }}</td>
-                          <td>{{ trip.from }}</td>
-                          <td>{{ trip.to }}</td>
-                          <td>{{ trip.startMeter }}</td>
-                          <td>{{ trip.endMeter }}</td>
-                          <td>{{ trip.distance }}</td>
-                          <td>{{ trip.duration }}</td>
-                          <td>{{ trip.driver }}</td>
-                        </tr>
+                      <tr>
+                        <td>{{ trip.date }}</td>
+                        <td>{{ trip.from }}</td>
+                        <td>{{ trip.to }}</td>
+                        <td>{{ trip.startMeter }}</td>
+                        <td>{{ trip.endMeter }}</td>
+                        <td>{{ trip.distance }}</td>
+                        <td>{{ trip.duration }}</td>
+                        <td>{{ trip.driver }}</td>
+                      </tr>
                       }
                     </tbody>
                   </table>
@@ -390,15 +336,17 @@
                     </thead>
                     <tbody>
                       @for (entry of fleetMaintenanceRows(dataItem); track entry.date + entry.service) {
-                        <tr>
-                          <td>{{ entry.date }}</td>
-                          <td>{{ entry.service }}</td>
-                          <td>{{ entry.odometer }}</td>
-                          <td>{{ entry.cost }}</td>
-                          <td>
-                            <span class="fleet-detail-pill" [class]="'fleet-detail-pill ' + fleetMaintenanceStatusClass(entry.status)">{{ entry.status }}</span>
-                          </td>
-                        </tr>
+                      <tr>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.service }}</td>
+                        <td>{{ entry.odometer }}</td>
+                        <td>{{ entry.cost }}</td>
+                        <td>
+                          <span class="fleet-detail-pill"
+                            [class]="'fleet-detail-pill ' + fleetMaintenanceStatusClass(entry.status)">{{ entry.status
+                            }}</span>
+                        </td>
+                      </tr>
                       }
                     </tbody>
                   </table>
@@ -414,64 +362,38 @@
                     <div class="fleet-cost-donut-layout">
                       <div class="fleet-cost-donut-legend" aria-label="Cost distribution legend">
                         @for (item of fleetCostDistribution(dataItem); track item.label) {
-                          <div class="fleet-cost-donut-legend-item">
-                            <span class="fleet-cost-donut-legend-main">
-                              <span class="fleet-cost-dot" [class]="fleetCostToneClass(item.tone)"></span>
-                              <span>{{ item.label }}</span>
-                            </span>
-                            <strong>{{ item.percentage }}</strong>
-                          </div>
+                        <div class="fleet-cost-donut-legend-item">
+                          <span class="fleet-cost-donut-legend-main">
+                            <span class="fleet-cost-dot" [class]="fleetCostToneClass(item.tone)"></span>
+                            <span>{{ item.label }}</span>
+                          </span>
+                          <strong>{{ item.percentage }}</strong>
+                        </div>
                         }
                       </div>
 
-                      <igx-doughnut-chart
-                        class="fleet-cost-donut"
-                        width="100%"
-                        height="280px"
-                        [allowSliceSelection]="false"
-                        [allowSliceExplosion]="false"
-                        [innerExtent]="62"
-                        [lightSliceLabelColor]="'#ffffff'"
-                        [darkSliceLabelColor]="'#ffffff'"
-                      >
-                        <igx-ring-series
-                          [dataSource]="fleetCostDistribution(dataItem)"
-                          valueMemberPath="value"
-                          labelMemberPath="displayLabel"
-                          [labelsPosition]="'center'"
-                          [leaderLineVisibility]="'collapsed'"
-                          [showDefaultTooltip]="true"
-                          [brushes]="fleetCostChartBrushes"
-                          [outlines]="fleetCostChartBrushes"
-                        ></igx-ring-series>
+                      <igx-doughnut-chart class="fleet-cost-donut" width="100%" height="280px"
+                        [allowSliceSelection]="false" [allowSliceExplosion]="false" [innerExtent]="62"
+                        [lightSliceLabelColor]="'#ffffff'" [darkSliceLabelColor]="'#ffffff'">
+                        <igx-ring-series [dataSource]="fleetCostDistribution(dataItem)" valueMemberPath="value"
+                          labelMemberPath="displayLabel" [labelsPosition]="'center'"
+                          [leaderLineVisibility]="'collapsed'" [showDefaultTooltip]="true"
+                          [brushes]="fleetCostChartBrushes" [outlines]="fleetCostChartBrushes"></igx-ring-series>
                       </igx-doughnut-chart>
                     </div>
                   </section>
 
                   <section class="fleet-cost-panel fleet-cost-panel-wide">
                     <div class="fleet-cost-panel-title">Monthly Fuel &amp; Operating Spend ($)</div>
-                    <igx-category-chart
-                      class="fleet-cost-column-chart"
-                      width="100%"
-                      height="280px"
-                      [dataSource]="fleetMonthlyOperatingSpend(dataItem)"
-                      xAxisLabel="month"
-                      [includedProperties]="['spend']"
-                      [brushes]="['#4c8be7']"
-                      [outlines]="['#4c8be7']"
+                    <igx-category-chart class="fleet-cost-column-chart" width="100%" height="280px"
+                      [dataSource]="fleetMonthlyOperatingSpend(dataItem)" xAxisLabel="month"
+                      [includedProperties]="['spend']" [brushes]="['#4c8be7']" [outlines]="['#4c8be7']"
                       xAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
-                      yAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
-                      [xAxisLabelTextColor]="fleetChartLabelColor"
-                      [yAxisLabelTextColor]="fleetChartLabelColor"
-                      [xAxisMajorStroke]="fleetChartGridlineColor"
-                      [yAxisMajorStroke]="fleetChartGridlineColor"
-                      [xAxisMajorStrokeThickness]="1"
-                      [yAxisMajorStrokeThickness]="1"
-                      chartType="column"
-                      [isHorizontalZoomEnabled]="false"
-                      [isVerticalZoomEnabled]="false"
-                      [thickness]="1"
-                    ></igx-category-chart>
+                      yAxisLabelTextStyle="500 12px 'DM Sans', sans-serif" [xAxisLabelTextColor]="fleetChartLabelColor"
+                      [yAxisLabelTextColor]="fleetChartLabelColor" [xAxisMajorStroke]="fleetChartGridlineColor"
+                      [yAxisMajorStroke]="fleetChartGridlineColor" [xAxisMajorStrokeThickness]="1"
+                      [yAxisMajorStrokeThickness]="1" chartType="column" [isHorizontalZoomEnabled]="false"
+                      [isVerticalZoomEnabled]="false" [thickness]="1"></igx-category-chart>
                   </section>
                 </div>
               </igx-tab-content>
@@ -511,28 +433,16 @@
                         <span>2024</span>
                       </span>
                     </div>
-                    <igx-category-chart
-                      class="fleet-utilization-comparison-chart"
-                      width="100%"
-                      height="320px"
-                      [dataSource]="fleetUtilizationSeries(dataItem)"
-                      xAxisLabel="month"
+                    <igx-category-chart class="fleet-utilization-comparison-chart" width="100%" height="320px"
+                      [dataSource]="fleetUtilizationSeries(dataItem)" xAxisLabel="month"
                       [includedProperties]="['utilization2025', 'utilization2024']"
-                      [brushes]="fleetUtilizationComparisonBrushes"
-                      [outlines]="fleetUtilizationComparisonBrushes"
+                      [brushes]="fleetUtilizationComparisonBrushes" [outlines]="fleetUtilizationComparisonBrushes"
                       xAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
-                      yAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
-                      [xAxisLabelTextColor]="fleetChartLabelColor"
-                      [yAxisLabelTextColor]="fleetChartLabelColor"
-                      [xAxisMajorStroke]="fleetChartGridlineColor"
-                      [yAxisMajorStroke]="fleetChartGridlineColor"
-                      [xAxisMajorStrokeThickness]="1"
-                      [yAxisMajorStrokeThickness]="1"
-                      chartType="column"
-                      [isHorizontalZoomEnabled]="false"
-                      [isVerticalZoomEnabled]="false"
-                      [thickness]="1"
-                    ></igx-category-chart>
+                      yAxisLabelTextStyle="500 12px 'DM Sans', sans-serif" [xAxisLabelTextColor]="fleetChartLabelColor"
+                      [yAxisLabelTextColor]="fleetChartLabelColor" [xAxisMajorStroke]="fleetChartGridlineColor"
+                      [yAxisMajorStroke]="fleetChartGridlineColor" [xAxisMajorStrokeThickness]="1"
+                      [yAxisMajorStrokeThickness]="1" chartType="column" [isHorizontalZoomEnabled]="false"
+                      [isVerticalZoomEnabled]="false" [thickness]="1"></igx-category-chart>
                   </div>
                 </div>
               </igx-tab-content>
@@ -552,14 +462,21 @@
     </header>
 
     <igc-grid-lite class="employee-lite-grid" [data]="employees" [attr.adopt-root-styles]="true">
-      <igc-grid-lite-column field="avatarUrl" header="Avatar" width="7%" [cellTemplate]="employeeAvatarCellTemplate"></igc-grid-lite-column>
-      <igc-grid-lite-column field="firstName" header="First Name" width="10%" sortable filterable></igc-grid-lite-column>
+      <igc-grid-lite-column field="avatarUrl" header="Avatar" width="7%"
+        [cellTemplate]="employeeAvatarCellTemplate"></igc-grid-lite-column>
+      <igc-grid-lite-column field="firstName" header="First Name" width="10%" sortable
+        filterable></igc-grid-lite-column>
       <igc-grid-lite-column field="lastName" header="Last Name" width="10%" sortable filterable></igc-grid-lite-column>
-      <igc-grid-lite-column field="satisfactionRating" header="Satisfaction Rating" width="15%" sortable filterable [cellTemplate]="employeeRatingCellTemplate"></igc-grid-lite-column>
-      <igc-grid-lite-column field="employmentType" header="Employment Type" width="12%" sortable filterable [cellTemplate]="employeeEmploymentCellTemplate"></igc-grid-lite-column>
-      <igc-grid-lite-column field="emailAddress" header="Email Address" width="17%" sortable filterable></igc-grid-lite-column>
-      <igc-grid-lite-column field="department" header="Department" width="11%" sortable filterable [cellTemplate]="employeeDepartmentCellTemplate"></igc-grid-lite-column>
-      <igc-grid-lite-column field="registeredOn" header="Registered On" width="18%" sortable filterable [cellTemplate]="employeeRegisteredOnCellTemplate"></igc-grid-lite-column>
+      <igc-grid-lite-column field="satisfactionRating" header="Satisfaction Rating" width="15%" sortable filterable
+        [cellTemplate]="employeeRatingCellTemplate"></igc-grid-lite-column>
+      <igc-grid-lite-column field="employmentType" header="Employment Type" width="12%" sortable filterable
+        [cellTemplate]="employeeEmploymentCellTemplate"></igc-grid-lite-column>
+      <igc-grid-lite-column field="emailAddress" header="Email Address" width="17%" sortable
+        filterable></igc-grid-lite-column>
+      <igc-grid-lite-column field="department" header="Department" width="11%" sortable filterable
+        [cellTemplate]="employeeDepartmentCellTemplate"></igc-grid-lite-column>
+      <igc-grid-lite-column field="registeredOn" header="Registered On" width="18%" sortable filterable
+        [cellTemplate]="employeeRegisteredOnCellTemplate"></igc-grid-lite-column>
     </igc-grid-lite>
   </section>
   } @else {
@@ -568,30 +485,41 @@
       <div>
         <h1>{{ financePageTitle() }}</h1>
         <p class="subtle">
-          {{ currentPage === 'financeSample' ? 'A grid showcasing Ignite UI Grid.' : 'A financial sample of the AG Grid component.' }}
+          {{ currentPage === 'financeSample' ? 'A grid showcasing Ignite UI Grid.' : 'A financial sample of the AG Grid
+          component.' }}
         </p>
       </div>
     </header>
 
     @if (currentPage === 'financeSample') {
-    <igx-grid
-      class="finance-grid"
-      [data]="igFinancialSampleRows"
-      [autoGenerate]="false"
-      [showGroupArea]="true"
-      [rowSelection]="'none'"
-    >
-      <igx-column field="ticker" header="Asset" [sortable]="true" [filterable]="false" [width]="'18%'">
+    <igx-grid class="finance-grid" [data]="filteredIgFinancialRows()" [autoGenerate]="false" [showGroupArea]="true"
+      [rowSelection]="'none'">
+
+      <igx-grid-toolbar>
+        <igx-grid-toolbar-title>Financial Portfolio</igx-grid-toolbar-title>
+        <div class="finance-toolbar-search">
+          <input
+            type="search"
+            class="finance-search-input"
+            placeholder="Filter by Asset"
+            [value]="financeAssetFilter()"
+            (input)="onFinanceAssetSearch($event)"
+          />
+        </div>
+        <igx-grid-toolbar-actions>
+          <igx-grid-toolbar-hiding></igx-grid-toolbar-hiding>
+          <igx-grid-toolbar-pinning></igx-grid-toolbar-pinning>
+          <igx-grid-toolbar-exporter></igx-grid-toolbar-exporter>
+        </igx-grid-toolbar-actions>
+      </igx-grid-toolbar>
+
+      <igx-column field="ticker" header="Asset" [sortable]="true" [filterable]="false" minWidth="260px">
         <ng-template igxCell let-cell="cell">
           <div class="ticker-cell">
-            <igx-avatar
-              class="ticker-logo"
-              [size]="'small'"
-              [shape]="'circle'"
+            <igx-avatar class="ticker-logo" [size]="'small'" [shape]="'circle'"
               [initials]="financeAvatarInitials(cell.row.data.ticker)"
               [style.--ig-avatar-background]="financeAvatarColor(cell.row.data.tone)"
-              [style.--ig-avatar-color]="'#ffffff'"
-            ></igx-avatar>
+              [style.--ig-avatar-color]="'#ffffff'"></igx-avatar>
             <div class="ticker-meta">
               <span class="ticker-symbol">{{ cell.row.data.ticker }}</span>
               <span class="ticker-name">{{ cell.row.data.company }}</span>
@@ -601,60 +529,47 @@
       </igx-column>
 
 
-      <igx-column field="priceTrend" header="Price Trend" [sortable]="false" [filterable]="false" [width]="'8%'">
+      <igx-column field="priceTrend" header="Price Trend" [sortable]="false" [filterable]="false" minWidth="100px"
+        [hidden]="hideMostColumns()">
         <ng-template igxCell let-cell="cell">
-          <igx-sparkline
-            class="price-trend-spark"
-            width="100%"
-            height="20px"
-            [dataSource]="cell.value"
-            valueMemberPath="value"
-            displayType="line"
-            [lineThickness]="1.8"
+          <igx-sparkline class="price-trend-spark" width="100%" height="20px" [dataSource]="cell.value"
+            valueMemberPath="value" displayType="line" [lineThickness]="1.8"
             [brush]="sparklineBrush(cell.row.data.changePct)"
-            [negativeBrush]="sparklineNegativeBrush(cell.row.data.changePct)"
-          >
-          ></igx-sparkline>
-        </ng-template>
-      </igx-column>    
-
-      <igx-column field="lastPrice" header="Last Price" [sortable]="true" [filterable]="false" [width]="'8%'">
-        <ng-template igxCell let-cell="cell">
-          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
-        </ng-template>
-      </igx-column>
-  
-      <igx-column field="changePct" header="Change %" [sortable]="true" [filterable]="false" [width]="'8%'">
-        <ng-template igxCell let-cell="cell">
-          <div class="delta-cell">
-            <span class="delta-value" [class]="deltaClass(cell.value)">{{ formatPercent(cell.value) }}</span>
-          </div>
-        </ng-template>
-      </igx-column>      
-
-      <igx-column field="marketValue" header="Market Value" [sortable]="true" [filterable]="false" [width]="'10%'">
-        <ng-template igxCell let-cell="cell">
-          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
+            [negativeBrush]="sparklineNegativeBrush(cell.row.data.changePct)">
+            ></igx-sparkline>
         </ng-template>
       </igx-column>
 
-      <igx-column field="netProfit" header="NET Profit" [sortable]="true" [filterable]="false" [width]="'10%'">
+      <igx-column field="lastPrice" header="Price (Change)" [sortable]="true" [filterable]="false" minWidth="200px"
+        headerClasses="finance-col-sep" cellClasses="finance-col-sep" [dataType]="'number'">
         <ng-template igxCell let-cell="cell">
-          <div class="delta-cell">
-            <span class="delta-value" [class]="deltaClass(cell.value)">{{ signedCurrency(cell.value) }}</span>
+          <div class="price-combined-cell">
+            <span class="numeric-cell price-combined-price">{{ formatCurrency(cell.row.data.lastPrice) }}</span>
+            <igx-badge class="finance-delta-badge" [type]="badgeType(cell.row.data.changePct)"
+              [value]="badgeLabel(cell.row.data.changePct)"></igx-badge>
           </div>
         </ng-template>
       </igx-column>
 
-      <igx-column field="netProfitPct" header="NET Profit %" [sortable]="true" [filterable]="false" [width]="'8%'">
+      <igx-column field="marketValue" header="Market Value" [sortable]="true" [filterable]="false" minWidth="140px"
+        [hidden]="hideMostColumns()" [dataType]="'number'">
         <ng-template igxCell let-cell="cell">
-          <div class="delta-cell">
-            <span class="delta-value" [class]="deltaClass(cell.value)">{{ formatPercent(cell.value) }}</span>
+          <span>{{ formatCurrency(cell.value) }}</span>
+        </ng-template>
+      </igx-column>
+
+      <igx-column field="netProfit" header="Total Revenue" [sortable]="true" [filterable]="false" minWidth="240px" [dataType]="'number'">
+        <ng-template igxCell let-cell="cell">
+          <div class="net-profit-combined-cell">
+            <igx-badge class="finance-value-badge" [type]="badgeType(cell.row.data.netProfit)"
+              [value]="badgeLabel(cell.row.data.netProfit)"></igx-badge>
+            <igx-badge class="finance-delta-badge" [type]="badgeType(cell.row.data.netProfitPct)"
+              [value]="badgeLabel(cell.row.data.netProfitPct)"></igx-badge>
           </div>
         </ng-template>
       </igx-column>
 
-      <igx-column field="allocationPct" header="Allocation" [sortable]="true" [filterable]="false" [width]="'10%'">
+      <igx-column field="allocationPct" header="Allocation" [sortable]="true" [filterable]="false" minWidth="170px">
         <ng-template igxCell let-cell="cell">
           <div class="allocation-cell">
             <span class="allocation-value">{{ formatPercent(cell.value) }}</span>
@@ -664,44 +579,18 @@
           </div>
         </ng-template>
       </igx-column>
-
-      <igx-column field="averageCost" header="Average Cost" [sortable]="true" [filterable]="false" [width]="'8%'">
-        <ng-template igxCell let-cell="cell">
-          <span class="numeric-cell">{{ formatCurrency(cell.value) }}</span>
-        </ng-template>
-      </igx-column>
-
-      <igx-column field="position" header="Position" [sortable]="true" [filterable]="false" [width]="'6%'">
-        <ng-template igxCell let-cell="cell">
-          <span class="numeric-cell">{{ formatQuantity(cell.value) }}</span>
-        </ng-template>
-      </igx-column>
-
-      <igx-column field="holdingPeriodDays" header="Holding Period" [sortable]="true" [filterable]="false" [width]="'6%'">
-        <ng-template igxCell let-cell="cell">
-          <span class="text-cell">{{ formatHoldingPeriod(cell.value) }}</span>
-        </ng-template>
-      </igx-column>
     </igx-grid>
     } @else {
-    <igx-grid
-      class="finance-grid"
-      [data]="activeFinanceHoldings()"
-      [autoGenerate]="false"
-      [showGroupArea]="true"
-      [rowSelection]="'none'"
-    >
+    <igx-grid class="finance-grid" [data]="activeFinanceHoldings()" [autoGenerate]="false" [showGroupArea]="true"
+      [rowSelection]="'none'">
+
       <igx-column field="ticker" header="Ticker" [sortable]="true" [filterable]="false" [width]="'22%'">
         <ng-template igxCell let-cell="cell">
           <div class="ticker-cell">
-            <igx-avatar
-              class="ticker-logo"
-              [size]="'small'"
-              [shape]="'circle'"
+            <igx-avatar class="ticker-logo" [size]="'small'" [shape]="'circle'"
               [initials]="financeAvatarInitials(cell.row.data.ticker)"
               [style.--ig-avatar-background]="financeAvatarColor(cell.row.data.tone)"
-              [style.--ig-avatar-color]="'#ffffff'"
-            ></igx-avatar>
+              [style.--ig-avatar-color]="'#ffffff'"></igx-avatar>
             <div class="ticker-meta">
               <span class="ticker-symbol">{{ cell.row.data.ticker }}</span>
               <span class="ticker-name">{{ cell.row.data.company }}</span>
@@ -714,13 +603,14 @@
         <ng-template igxCell let-cell="cell">
           <div class="timeline-cell" aria-label="timeline sparkline">
             @for (bar of cell.value; track $index) {
-              <span class="timeline-bar" [style.height.%]="bar"></span>
+            <span class="timeline-bar" [style.height.%]="bar"></span>
             }
           </div>
         </ng-template>
       </igx-column>
 
-      <igx-column field="instrument" header="Instrument" [sortable]="true" [filterable]="true" [width]="'12%'"></igx-column>
+      <igx-column field="instrument" header="Instrument" [sortable]="true" [filterable]="true"
+        [width]="'12%'"></igx-column>
 
       <igx-column field="pnl" header="P&L" [sortable]="true" [filterable]="false" [width]="'14%'">
         <ng-template igxCell let-cell="cell">

@@ -39,6 +39,8 @@
 
   --up: #2f8b5c;
   --down: #be4e47;
+  --positive-text: #068458;
+  --negative-text: #c41375;
   --pill-positive-text: #136045;
   --pill-positive-bg: #d6f2e7;
   --pill-negative-text: #9e3f74;
@@ -555,9 +557,9 @@ h1 {
 }
 
 .activity-grid {
-  --ig-size: 1;
-
+  --ig-size: 2;
   font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
   width: 100%;
   height: 100%;
   min-height: 250px;
@@ -572,6 +574,31 @@ h1 {
   --row-even-text-color: var(--dark-text);
   --row-hover-background: var(--grid-hover-bg);
 }
+
+
+.activity-grid ::ng-deep .igx-grid__th,
+.activity-grid ::ng-deep .igx-grid__td,
+.activity-grid ::ng-deep .igx-grid__td-inner,
+.activity-grid ::ng-deep .igx-grid__drop-area,
+.activity-grid ::ng-deep .numeric-cell,
+.activity-grid ::ng-deep .text-cell {
+	font-size: var(--font-size-base) !important;
+}
+
+
+.activity-grid ::ng-deep .igx-grid-th__title {
+	font-size: var(--font-size-sm) !important;
+}
+
+.activity-grid .numeric-cell,
+.activity-grid .allocation-value,
+.activity-grid .delta-value,
+.activity-grid .price-change-cell {
+	font-variant-numeric: tabular-nums;
+}
+
+
+
 
 
 
@@ -608,7 +635,8 @@ h1 {
   grid-template-rows: auto minmax(0, 1fr);
   flex: 1 1 auto;
   min-height: 0;
-  gap: 0.75rem;
+  gap: 1.5rem;
+  overflow-x: auto;
 }
 
 .finance-header {
@@ -624,6 +652,35 @@ h1 {
 .finance-shell .finance-grid {
   height: 100%;
   min-height: 0;
+}
+
+.finance-toolbar-search {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 280px;
+}
+
+.finance-search-input {
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--text);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s;
+  height: 38px;
+}
+
+.finance-search-input::placeholder {
+  color: var(--subtle-muted);
+}
+
+.finance-search-input:focus {
+  border-color: var(--top-link-active, #7b62e8);
 }
 
 .fleet-shell {
@@ -669,7 +726,7 @@ h1 {
 .fleet-chip {
     --ig-size: 3;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   --background:#1a1d24;
   --border-color: #3b3d42;
   --text-color: #d0d2d8;
@@ -710,7 +767,7 @@ h1 {
 .fleet-master-grid {
   border: 1px solid var(--fleet-border);
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px;
+  font-size: var(--font-size-sm);
   --background: var(--fleet-bg);
   --foreground: var(--fleet-fg);
   --accent-color: var(--fleet-accent);
@@ -757,22 +814,26 @@ h1 {
   min-height: 0;
 }
 
-.fleet-master-grid .igx-grid__th,
-.fleet-master-grid .igx-grid__td,
-.fleet-master-grid .igx-grid__td-inner,
-.fleet-master-grid .igx-grid__drop-area,
+.fleet-master-grid ::ng-deep .igx-grid__th,
+.fleet-master-grid ::ng-deep .igx-grid-th__title,
+.fleet-master-grid ::ng-deep .igx-grid__td,
+.fleet-master-grid ::ng-deep .igx-grid__td-inner,
+.fleet-master-grid ::ng-deep .igx-grid__drop-area,
 .fleet-master-grid .numeric-cell,
 .fleet-master-grid .text-cell,
 .fleet-master-grid .allocation-value {
-  font-size: 14px !important;
+	font-size: var(--font-size-sm) !important;
+}
+
+.fleet-master-grid ::ng-deep .igx-grid__hierarchical-indent {
+  margin: 1rem 1.5rem !important;
 }
 
 
 .fleet-detail-wrap {
   background: var(--fleet-bg);
-  border-top: 1px solid #2b3346;
-  border-left: 1px solid #7f2f55;
-  padding: 1rem;
+  border:none;
+  padding: 0;
   width: 100%;
   box-sizing: border-box;
 }
@@ -803,8 +864,8 @@ h1 {
 .fleet-detail-content {
   display: grid;
   grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
-  gap: 1.1rem;
-  padding: 1.5rem;
+  gap: 2rem;
+  padding: 1.5rem 0;
   align-items: start;
   width: 100%;
   box-sizing: border-box;
@@ -813,9 +874,14 @@ h1 {
 .fleet-vehicle-card {
   margin: 0;
   grid-column: 1;
-  border: 1px solid #2b3241;
-  background: #222836;
+  border: 0px solid transparent;
+  background: none;
 }
+
+.fleet-vehicle-card  .igx-card-content{
+  padding: 0;
+}
+
 
 .fleet-vehicle-illustration {
   min-height: 180px;
@@ -836,15 +902,15 @@ h1 {
 }
 
 .fleet-vehicle-caption {
-  font-size: 1.05rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
 }
 
 .fleet-spec-grid {
   grid-column: 2;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.4rem 0.8rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1rem;
   align-self: start;
   width: 100%;
 }
@@ -858,13 +924,13 @@ h1 {
 
 .fleet-spec-item span {
   text-transform: uppercase;
-  font-size: 0.7rem;
+  font-size: var(--font-size-sm);
   letter-spacing: 0.03em;
   color: #8791aa;
 }
 
 .fleet-spec-item strong {
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
   color: #dce2f4;
   font-weight: 500;
 }
@@ -872,7 +938,7 @@ h1 {
 .fleet-tab-panel {
   display: grid;
   gap: 1.5rem;
-  padding: 1.5rem;
+  padding: 1.5rem 0;
   color: var(--fleet-fg);
 }
 
@@ -898,7 +964,7 @@ h1 {
 .fleet-utilization-title,
 .fleet-detail-table th {
   color: #6f7687;
-  font-size: 0.72rem;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -906,7 +972,7 @@ h1 {
 
 .fleet-tab-kpi strong {
   color: #edf1f8;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   font-weight: 700;
 }
 
@@ -933,7 +999,7 @@ h1 {
 
 .fleet-detail-table td {
   color: #d0d4dc;
-  font-size: 0.86rem;
+  font-size: var(--font-size-sm);
 }
 
 .fleet-maintenance-alert {
@@ -949,7 +1015,7 @@ h1 {
 
 .fleet-maintenance-alert igx-icon {
   color: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }
 
 .fleet-detail-pill {
@@ -1042,9 +1108,9 @@ h1 {
 }
 
 .fleet-cost-panel {
-  padding: 1.5rem;
+  padding: 1.5rem 0;
   display: grid;
-  gap: 1.5rem;
+  gap: 2rem;
 }
 
 .fleet-cost-panel-wide {
@@ -1053,7 +1119,7 @@ h1 {
 
 .fleet-cost-panel-title {
   color: #dce3f7;
-  font-size: 0.8rem;
+  font-size: var(--font-size-sm);
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -1078,7 +1144,7 @@ h1 {
   justify-content: space-between;
   gap: 1rem;
   color: #d0d4dc;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
 }
 
 .fleet-cost-donut-legend-main {
@@ -1111,7 +1177,7 @@ h1 {
   align-items: center;
   gap: 1rem;
   color: #d0d4dc;
-  font-size: 0.82rem;
+  font-size: var(--font-size-sm);
 }
 
 .fleet-utilization-legend-item {
@@ -1152,7 +1218,7 @@ h1 {
   grid-template-rows: auto minmax(0, 1fr);
   flex: 1 1 auto;
   min-height: 0;
-  gap: 0.75rem;
+  gap: 1.5rem;
 }
 
 .employee-lite-grid {
@@ -1177,6 +1243,12 @@ h1 {
   --cell-active-border-color: #ff4d92;
 }
 
+.employee-lite-grid::part(header-cell),
+.employee-lite-grid::part(header),
+.employee-lite-grid::part(th) {
+  font-size: var(--font-size-base);
+}
+
 .status-display {
   display: inline-flex;
   align-items: center;
@@ -1185,7 +1257,7 @@ h1 {
 }
 
 .badge-text {
-  color: var(--white);
+  color: var(--fleet-fg);
 }
 
 .status-dot {

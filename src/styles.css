@@ -28,6 +28,8 @@ body {
 
 .finance-grid .igx-grid__th,
 .finance-grid .igx-grid__td,
+.finance-grid .igx-grid-th__title,
+.finance-grid .igx-grid__td,
 .finance-grid .igx-grid__td-inner,
 .finance-grid .igx-grid__drop-area,
 .finance-grid .numeric-cell, .finance-grid .text-cell,
@@ -117,31 +119,73 @@ body {
 	gap: 0.5rem;
 }
 
-.delta-value::before {
-	content: '';
+
+igx-badge.finance-value-badge.igx-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	min-width: unset;
+	height: auto;
+	border-radius: 999px;
+	padding: 0.24rem 0.62rem;
+	font-variant-numeric: tabular-nums;
+	position: relative;
+	white-space: nowrap;
+	--size:12px;
+	box-shadow: none;
 }
 
-.delta-value.positive {
-	color: var(--pill-positive-text);
-	background: var(--pill-positive-bg);
+igx-badge.finance-value-badge.igx-badge--success {
+	background: none;
+	color: var(--positive-text);
 }
 
-.delta-value.positive::before {
-	content: '↑ ';
+igx-badge.finance-value-badge.igx-badge--error {
+	background: none;
+	color: var(--negative-text);
 }
 
-.delta-value.negative {
-	color: var(--pill-negative-text);
-	background: var(--pill-negative-bg);
-}
-
-.delta-value.negative::before {
-	content: '↓ ';
-}
-
-.delta-value.neutral {
+igx-badge.finance-value-badge.igx-badge--info {
+	background: none;
 	color: var(--avatar-default-text);
+}
+
+
+/* igx-badge styled as a pill for percentage delta values */
+igx-badge.finance-delta-badge.igx-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: fit-content;
+	min-width: unset;
+	height: auto;
+	border-radius: 999px;
+	padding: 0.24rem 0.62rem;
+	font-family: 'DM Sans', sans-serif;
+	font-size: 0.75rem;
+	font-weight: 700;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	position: relative;
+	white-space: nowrap;
+	--size:12px;
+	box-shadow: none;
+}
+
+igx-badge.finance-delta-badge.igx-badge--success {
 	background: var(--pill-positive-bg);
+	color: var(--pill-positive-text);
+}
+
+igx-badge.finance-delta-badge.igx-badge--error {
+	background: var(--pill-negative-bg);
+	color: var(--pill-negative-text);
+}
+
+igx-badge.finance-delta-badge.igx-badge--info {
+	background: var(--pill-positive-bg);
+	color: var(--avatar-default-text);
 }
 
 .allocation-track {
@@ -168,7 +212,7 @@ body {
 	width: fit-content;
 	padding: 0.24rem 0.62rem;
 	border-radius: 999px;
-	font: 600 0.75rem 'DM Sans', sans-serif;
+	font-size: 0.875rem;
 	font-variant-numeric: tabular-nums;
 	line-height: 1;
 }
@@ -178,13 +222,6 @@ body {
 	font-variant-numeric: tabular-nums;
 }
 
-.numeric-cell {
-	display: block;
-	width: 100%;
-	font-size: 0.875rem;
-	font-variant-numeric: tabular-nums;
-	text-align: right;
-}
 
 .delta-cell {
 	display: flex;
@@ -208,11 +245,42 @@ body {
 	white-space: nowrap;
 }
 
+.price-combined-cell {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	white-space: nowrap;
+}
+
+.price-combined-price {
+	display: inline;
+	width: auto;
+	white-space: nowrap;
+}
+
+.net-profit-combined-cell {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0rem;
+	flex-wrap: wrap;
+	margin-inline-start: auto;
+}
+
+.finance-grid .igx-grid__th.finance-col-sep,
+.finance-grid .igx-grid__td.finance-col-sep {
+	border-left: 2px solid var(--grid-border-light) !important;
+}
+
 .price-trend-spark {
 	display: block;
 	width: 100%;
 	height: 20px;
 	padding-inline: 2px;
+}
+
+igc-grid-lite-header::part(title) {
+	font-size: 1rem;
 }
 
 .employee-directory-avatar::part(base) {
