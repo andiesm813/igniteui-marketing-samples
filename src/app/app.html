@@ -384,7 +384,7 @@
                   <section class="fleet-cost-panel fleet-cost-panel-wide">
                     <div class="fleet-cost-panel-title">Monthly Fuel &amp; Operating Spend ($)</div>
                     <igx-category-chart class="fleet-cost-column-chart" width="100%" height="280px"
-                      [dataSource]="fleetMonthlyOperatingSpend(dataItem)" xAxisLabel="month"
+                      [dataSource]="fleetMonthlyOperatingSpend(dataItem)" xAxisLabel="month" isTransitionInEnabled="false"
                       [includedProperties]="['spend']" [brushes]="['#4c8be7']" [outlines]="['#4c8be7']"
                       xAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
                       yAxisLabelTextStyle="500 12px 'DM Sans', sans-serif" [xAxisLabelTextColor]="fleetChartLabelColor"
@@ -432,7 +432,7 @@
                       </span>
                     </div>
                     <igx-category-chart class="fleet-utilization-comparison-chart" width="100%" height="320px"
-                      [dataSource]="fleetUtilizationSeries(dataItem)" xAxisLabel="month"
+                      [dataSource]="fleetUtilizationSeries(dataItem)" xAxisLabel="month" isTransitionInEnabled="false"
                       [includedProperties]="['utilization2025', 'utilization2024']"
                       [brushes]="fleetUtilizationComparisonBrushes" [outlines]="fleetUtilizationComparisonBrushes"
                       xAxisLabelTextStyle="500 12px 'DM Sans', sans-serif"
